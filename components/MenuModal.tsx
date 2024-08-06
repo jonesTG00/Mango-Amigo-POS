@@ -233,7 +233,8 @@ export default function MenuModal(props: ModalMenuDetails) {
               <ReceiptTab
                 width={"35%"}
                 receipt_list={toAddReceipt}
-                remove_from_receipt={removeFromReceipt}
+                remove_from_receipt={removeFromReceipt} 
+                checkout={false}                
               />
             </View>
             <TouchableOpacity

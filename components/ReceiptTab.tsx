@@ -18,16 +18,18 @@ import { useFonts } from "expo-font";
 
 import defaultStyles from "../assets/defaults";
 import { Receipt } from "../assets/db/types";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface ReceiptTabDetails {
   width: `${number}%`;
   receipt_list: { receipt: Receipt; menu_name: string }[] | [];
   remove_from_receipt: (id: string) => void;
+  checkout: boolean;
 }
 
 export default function ReceiptTab(props: ReceiptTabDetails) {
-  const { width, receipt_list, remove_from_receipt } = props;
+  const { width, receipt_list, remove_from_receipt, checkout } = props;
+  const [total, setTotal] = useState<number>(0);
   const [fonts] = useFonts({
     Monument: require("../assets/fonts/Monument Extended.otf"),
     Poppins: require("../assets/fonts/Poppins.ttf"),
@@ -70,7 +72,26 @@ export default function ReceiptTab(props: ReceiptTabDetails) {
       fontFamily: "Poppins",
       textAlign: "center",
     },
+    checkout_container: {
+      width: "100%",
+      backgroundColor: "red",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center"
+    }
   });
+
+  function setBackgroundColor(type: string): string{
+    if(type === 'DRINKS'){
+      return "#FFB22C";
+    } else if(type === 'FRIES' || type === "CHEESESTICK" || type === "SNACK WITH DRINKS"){
+      return "#FF4C4C"
+    } else if (type === "SIOMAI" || type === "SUPER MEALS"){
+      return "#9A9DDD"
+    } else {
+      return "#FADDE1"
+    }
+  }
 
   function generate_receipt_details(
     item: {
@@ -81,17 +102,17 @@ export default function ReceiptTab(props: ReceiptTabDetails) {
   ) {
     return (
       <TouchableOpacity
-        style={[styles.menu_item_button, defaultStyles.small_shadow]}
+        style={[styles.menu_item_button, defaultStyles.small_shadow, {backgroundColor: setBackgroundColor(item.receipt.type)}]}
         onPress={() => remove_from_receipt(item.receipt.receipt_id)}
         key={index}
       >
-        <View style={{ width: "10%" }}>
+        <View style={{ width: "20%" }}>
           <Text style={[styles.receipt_text]}>{item.receipt.quantity}</Text>
         </View>
-        <View style={{ width: "80%" }}>
+        <View style={{ width: "60%" }}>
           <Text style={[styles.receipt_text]}>{item.menu_name}</Text>
         </View>
-        <View style={{ width: "10%" }}>
+        <View style={{ width: "20%" }}>
           <Text style={[styles.receipt_text]}>{item.receipt.total_price}</Text>
         </View>
       </TouchableOpacity>
@@ -132,6 +153,17 @@ export default function ReceiptTab(props: ReceiptTabDetails) {
           })}
         </View>
       </ScrollView>
+
+{checkout && <View style={[styles.checkout_container]} >
+        <Text>
+          <Text>
+            Total Price
+            </Text>
+        </Text>
+        <TouchableOpacity style={{alignSelf: "flex-end"}}>
+          <Text>Checkout</Text>
+        </TouchableOpacity>
+      </View>}
     </View>
   );
 }

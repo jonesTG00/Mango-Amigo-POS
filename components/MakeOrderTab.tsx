@@ -462,7 +462,8 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
             })}
           </View>
           {!Object.keys(prices).includes("3pcs") &&
-          !Object.keys(prices).includes("12oz")
+          !Object.keys(prices).includes("12oz") &&
+          !Object.keys(prices).includes("SM1 (3pcs siomai + 1 rice)")
             ? DipAddOnButton()
             : null}
         </View>

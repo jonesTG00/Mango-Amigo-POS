@@ -19,9 +19,23 @@ import { Receipt } from "../assets/db/types";
 import { useFonts } from "expo-font";
 import defaultStyles, { MENU_CATEGORY_NAME } from "../assets/defaults";
 import ReceiptTab from "../components/ReceiptTab";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {connect} from '../assets/db/Queries'
+import * as SQLite from 'expo-sqlite';
 
 export default function App() {
+  const db: Promise<SQLite.SQLiteDatabase> = connect()
+  
+  useEffect(()=>{
+     async function createNeededTables(){
+      (await db).execAsync(
+        `CREATE TABLE IF NOT EXISTS receipt(receipt_id TEXT PRIMARY KEY NOT NULL, order_id TEXT NOT NULL, type TEXT NOT NULL, item_id TEXT NOT NULL, specifications TEXT NOT NULL, quantity INTEGER DEFAULT 1, add_on_price INTEGER DEFAULT 0, item_price INTEGER NOT NULL, total_price INTEGER NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+        CREATE TABLE IF NOT EXISTS order_summary(order_id TEXT PRIMARY KEY NOT NULL, mode_of_payment TEXT CHECK (mode_of_payment IN ('GCASH', 'MAYA', "CASH")) NOT NULL, discount_percentage INTEGER DEFAULT 0, discount_cash INTEGER DEFAULT 0, d_t TEXT CHECK(d_t in ('D','T')) NOT NULL, raw_total NUMBER NOT NULL, total NUMBER NOT NULL, tendered_amount NUMBER NOT NULL, change NUMBER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`
+      )
+      .then(()=>console.log("table created")).catch((e)=>console.log(e));
+    }
+      createNeededTables()
+  },[])
   const [fonts] = useFonts({
     Monument: require("../assets/fonts/Monument Extended.otf"),
   });
@@ -105,8 +119,8 @@ export default function App() {
           <ReceiptTab
             width={"40%"}
             receipt_list={receipt}
-            remove_from_receipt={remove_receipt}
-          />
+            remove_from_receipt={remove_receipt} 
+            checkout={true}/>
           <View style={[style.menuDiv, defaultStyles.big_shadow]}>
             <View style={style.menuButtonContainer}>
               <Text style={{ fontFamily: "Monument", fontSize: hp(4) }}>
