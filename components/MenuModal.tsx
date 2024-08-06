@@ -25,23 +25,47 @@ import {
   DrinkData,
   OtherList,
   OtherData,
+  Receipt,
 } from "../assets/db/types";
 import { useEffect, useState } from "react";
 import MenuItemsButton from "./MenuItemsButton";
 import MakeOrderTab from "./MakeOrderTab";
+
+import menuJson from "../assets/db/menuItems.json";
+import AddOnTab from "./AddOnTab";
+import ReceiptTab from "./ReceiptTab";
+
 interface ModalMenuDetails {
   onClose: () => void;
   menu_category_name: string;
   isVisible: boolean;
   color: string;
+  add_receipt: (item: { receipt: Receipt; menu_name: string }[]) => void;
 }
-import menuJson from "../assets/db/menuItems.json";
 export default function MenuModal(props: ModalMenuDetails) {
-  const { onClose, menu_category_name, isVisible, color } = props;
+  const { onClose, menu_category_name, isVisible, color, add_receipt } = props;
   const [fonts] = useFonts({
     Boogaloo: require("../assets/fonts/Boogaloo.ttf"),
     Monument: require("../assets/fonts/Monument Extended.otf"),
   });
+
+  const [toAddReceipt, setToAddReceipt] = useState<
+    { receipt: Receipt; menu_name: string }[]
+  >([]);
+
+  function addToTemporaryReceipt(item: {
+    receipt: Receipt;
+    menu_name: string;
+  }) {
+    setToAddReceipt([...toAddReceipt, item]);
+  }
+
+  function removeFromReceipt(id: string) {
+    const newArray = [...toAddReceipt];
+    const index = newArray.findIndex((item) => item.receipt.receipt_id === id);
+    newArray.splice(index, 1);
+    setToAddReceipt(newArray);
+  }
 
   const [itemSelected, setItemSelected] = useState<
     | DrinkData
@@ -120,6 +144,7 @@ export default function MenuModal(props: ModalMenuDetails) {
                             menu_data={menu}
                             change_item_selected={setItemSelected}
                             key={menu.id}
+                            color={color}
                           />
                         );
                       })}
@@ -138,6 +163,7 @@ export default function MenuModal(props: ModalMenuDetails) {
                               menu_data={menu}
                               change_item_selected={setItemSelected}
                               key={menu.id}
+                              color={color}
                             />
                           );
                         })}
@@ -157,6 +183,7 @@ export default function MenuModal(props: ModalMenuDetails) {
                               menu_data={menu}
                               change_item_selected={setItemSelected}
                               key={menu.id}
+                              color={color}
                             />
                           );
                         })}
@@ -173,6 +200,8 @@ export default function MenuModal(props: ModalMenuDetails) {
                             menu_name={menu.menu_name}
                             menu_data={menu}
                             change_item_selected={setItemSelected}
+                            key={menu.id}
+                            color={color}
                           />
                         );
                       })}
@@ -198,11 +227,20 @@ export default function MenuModal(props: ModalMenuDetails) {
                 }
                 menu_category_name={menu_category_name}
                 color={color}
+                receipt_list={toAddReceipt}
+                add_receipt={addToTemporaryReceipt}
+              />
+              <ReceiptTab
+                width={"35%"}
+                receipt_list={toAddReceipt}
+                remove_from_receipt={removeFromReceipt}
               />
             </View>
             <TouchableOpacity
               style={[styles.backButton, defaultStyles.small_shadow]}
               onPress={() => {
+                add_receipt(toAddReceipt);
+                setToAddReceipt([]);
                 setItemSelected(null);
                 onClose();
               }}

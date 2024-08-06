@@ -38,12 +38,23 @@ export default function AddOnTab(props: AddOnTabDetails) {
     },
     add_on_button: {
       width: "100%",
-      paddingHorizontal: hp(0.5),
+      paddingHorizontal: hp(1),
       paddingVertical: hp(1),
+      display: "flex",
+      flexDirection: "row",
+      alignContent: "center",
     },
     text_style: {
       fontSize: hp(1),
       fontFamily: "Monument",
+      textAlign: "center",
+      flexGrow: 1,
+    },
+
+    delete_style: {
+      fontFamily: "Boogaloo",
+      fontSize: hp(1),
+      color: "red",
       textAlign: "center",
     },
   });
@@ -59,6 +70,7 @@ export default function AddOnTab(props: AddOnTabDetails) {
             style={[styles.add_on_button, defaults.small_shadow]}
           >
             <Text style={[styles.text_style]}>{Object.keys(el)}</Text>
+            <Text style={styles.delete_style}> X </Text>
           </TouchableOpacity>
         );
       })}

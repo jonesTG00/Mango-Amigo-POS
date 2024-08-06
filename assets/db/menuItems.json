@@ -1,72 +1,72 @@
 {
   "Drinks": [
     {
-      "id": 0,
+      "id": "D-1",
       "menu_name": "Mango Plain",
       "price": { "12oz": 45, "16oz": 55, "22oz": 65 }
     },
     {
-      "id": 1,
+      "id": "D-2",
       "menu_name": "Mango Graham",
       "price": { "12oz": 45, "16oz": 65, "22oz": 75 }
     },
     {
-      "id": 2,
+      "id": "D-3",
       "menu_name": "Mango Chocolate",
       "price": { "12oz": 45, "16oz": 65, "22oz": 75 }
     },
     {
-      "id": 3,
+      "id": "D-4",
       "menu_name": "Mango Caramel",
       "price": { "12oz": 45, "16oz": 65, "22oz": 75 }
     },
     {
-      "id": 4,
+      "id": "D-5",
       "menu_name": "Mango Blueberry",
       "price": { "12oz": 45, "16oz": 65, "22oz": 75 }
     },
     {
-      "id": 5,
+      "id": "D-6",
       "menu_name": "Mango Strawberry",
       "price": { "12oz": 45, "16oz": 65, "22oz": 75 }
     },
     {
-      "id": 6,
+      "id": "D-7",
       "menu_name": "Mango Chips Delight",
-      "price": { "12oz": 45, "16oz": 70, "22oz": 80 }
+      "price": { "12oz": 50, "16oz": 70, "22oz": 80 }
     },
     {
-      "id": 7,
+      "id": "D-8",
       "menu_name": "Mango Oreo",
-      "price": { "12oz": 45, "16oz": 70, "22oz": 80 }
+      "price": { "12oz": 50, "16oz": 70, "22oz": 80 }
     },
     {
-      "id": 10,
+      "id": "D-9",
       "menu_name": "Mango Cream Cheese",
       "price": { "12oz": 50, "16oz": 75, "22oz": 95 }
     },
     {
-      "id": 11,
+      "id": "D-10",
       "menu_name": "Mango Nutella",
-      "price": { "12oz": 45, "16oz": 75, "22oz": 95 }
+      "price": { "12oz": 50, "16oz": 80, "22oz": 95 }
     },
     {
-      "id": 12,
+      "id": "FRP-1",
       "menu_name": "Mocha Frappe",
       "price": { "12oz": 59, "16oz": 79, "22oz": 99 }
     },
     {
-      "id": 13,
+      "id": "FRP-2",
       "menu_name": "Java Chips",
       "price": { "12oz": 59, "16oz": 79, "22oz": 99 }
     },
     {
-      "id": 14,
+      "id": "D-11",
       "menu_name": "Mango Overload",
       "price": { "12oz": 0, "16oz": 85, "22oz": 95 }
     },
     {
-      "id": 15,
+      "id": "D-12",
       "menu_name": "Mango Extra Overload",
       "price": { "12oz": 0, "16oz": 90, "22oz": 100 }
     }
@@ -74,7 +74,7 @@
 
   "Fries": [
     {
-      "id": 16,
+      "id": "FRS-1",
       "menu_name": "Fries",
       "price": {
         "small": 25,
@@ -88,7 +88,7 @@
 
   "Cheesestick": [
     {
-      "id": 17,
+      "id": "CS-1",
       "menu_name": "Cheesestick",
       "price": { "8pcs": 20, "12pcs": 30, "16pcs": 40, "20pcs": 50 }
     }
@@ -96,24 +96,24 @@
 
   "Snack with Drink": [
     {
-      "id": 18,
+      "id": "SWD-1",
       "menu_name": "Fries with Drinks",
-      "price": { "with Fruit Juice": 29, "with Milk Tea": 39 }
+      "price": { "with Fruit Juice": 35, "with Milk Tea": 45 }
     },
     {
-      "id": 19,
+      "id": "SWD-2",
       "menu_name": "Fries and Hotdog with Drinks",
-      "price": { "with Fruit Juice": 45, "with Milk Tea": 45 }
+      "price": { "with Fruit Juice": 50, "with Milk Tea": 55 }
     },
     {
-      "id": 20,
+      "id": "SWD-3",
       "menu_name": "Fries and Cheesestick with Drinks",
-      "price": { "with Fruit Juice": 45, "with Milk Tea": 45 }
+      "price": { "with Fruit Juice": 50, "with Milk Tea": 55 }
     }
   ],
   "Siomai": [
     {
-      "id": 21,
+      "id": "S-1",
       "menu_name": "Siomai",
       "price": {
         "3pcs": 35,
@@ -121,34 +121,26 @@
         "9pcs": 105,
         "12pcs": 140,
         "15pcs": 175,
-        "20pcs": 2,
-        "30pcs": 330
+        "20pcs": 0,
+        "30pcs": 0
       }
     }
   ],
   "Super Meal": [
     {
-      "id": 22,
-      "menu_name": "SM1 (3pcs siomai + 1 rice)",
+      "id": "SM",
+      "menu_name": "Super Meal",
       "siomai": 3,
-      "price": 43
-    },
-    {
-      "id": 23,
-      "menu_name": "SM2 (4pcs siomai + 1 rice)",
-      "siomai": 4,
-      "price": 54
-    },
-    {
-      "id": 24,
-      "menu_name": "SM3 (6pcs siomai + 1 rice)",
-      "siomai": 6,
-      "price": 76
+      "price": {
+        "SM1 (3pcs siomai + 1 rice)": 50,
+        "SM2 (4pcs siomai + 1 rice)": 60,
+        "SM3 (6pcs siomai + 1 rice)": 80
+      }
     }
   ],
   "Others": [
-    { "id": 25, "menu_name": "Nacho", "price": 65 },
-    { "id": 25, "menu_name": "Plain Rice", "price": 15 }
+    { "id": "O-1", "menu_name": "Nacho", "price": 65 },
+    { "id": "O-2", "menu_name": "Plain Rice", "price": 15 }
   ],
   "Add On": [
     {

@@ -10,7 +10,7 @@ export interface MenuList {
 }
 
 export interface DrinkData {
-  id: number;
+  id: string;
   menu_name: string;
   price: OzDrinkPrice;
 }
@@ -22,7 +22,7 @@ export interface OzDrinkPrice {
 }
 
 export interface Fries {
-  id: number;
+  id: string;
   menu_name: string;
   price: FryPrice;
 }
@@ -36,7 +36,7 @@ export interface FryPrice {
 }
 
 export interface Cheesestick {
-  id: number;
+  id: string;
   menu_name: string;
   price: CheesestickPrice;
 }
@@ -49,7 +49,7 @@ export interface CheesestickPrice {
 }
 
 export interface SnackWithDrink {
-  id: number;
+  id: string;
   menu_name: string;
   price: SnackWithDrinkPrice;
 }
@@ -60,7 +60,7 @@ export interface SnackWithDrinkPrice {
 }
 
 export interface Siomai {
-  id: number;
+  id: string;
   menu_name: string;
   price: SiomaiPrice;
 }
@@ -76,14 +76,20 @@ export interface SiomaiPrice {
 }
 
 export interface SuperMeal {
-  id: number;
+  id: string;
   menu_name: string;
   siomai: number;
-  price: number;
+  price: SuperMealPrice;
+}
+
+export interface SuperMealPrice {
+  "SM1 (3pcs siomai + 1 rice)": number;
+  "SM2 (4pcs siomai + 1 rice)": number;
+  "SM3 (6pcs siomai + 1 rice)": number;
 }
 
 export interface OtherData {
-  id: number;
+  id: string;
   menu_name: string;
   price: number;
 }
@@ -140,7 +146,7 @@ export const SiomaiAndSuperMealList: SiomaiAndSuperMeal = {
 // export const AddOnsList:
 
 export const DrinksAddOnList: AddOn = menuJson["Add On"][0];
-export const FriessAddOnList: AddOn = menuJson["Add On"][1];
+export const FriesAddOnList: AddOn = menuJson["Add On"][1];
 
 export const OtherList: Other = { Others: menuJson["Others"] };
 
@@ -169,3 +175,27 @@ export const images = {
   "SM2 (4pcs siomai + 1 rice)": require("../img/menu_images/SM2 (4pcs siomai + 1 rice).png"),
   "SM3 (6pcs siomai + 1 rice)": require("../img/menu_images/SM3 (6pcs siomai + 1 rice).png"),
 };
+
+export interface OrderSummary {
+  order_id: string;
+  mode_of_payment: "GCASH" | "MAYA" | "CASH";
+  discount_percentage: number;
+  discount_cash: number;
+  "d/t": "d" | "t";
+  raw_total: number;
+  total: number;
+  tendered_amount: number;
+  change: number;
+}
+
+export interface Receipt {
+  receipt_id: string;
+  order_id: string;
+  type: string;
+  item_id: string;
+  specifications: string;
+  quantity: number;
+  add_on_price: number;
+  item_price: number;
+  total_price: number;
+}

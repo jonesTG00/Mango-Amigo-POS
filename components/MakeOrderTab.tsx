@@ -1,4 +1,5 @@
 import { useFonts } from "expo-font";
+// import uniqid from "uniqid";
 import {
   DrinkData,
   Fries,
@@ -10,12 +11,13 @@ import {
   OtherData,
   DrinksAddOnList,
   OzDrinkPrice,
-  FriessAddOnList,
+  FriesAddOnList,
   FryPrice,
   CheesestickPrice,
   SnackWithDrinkPrice,
   SiomaiPrice,
   images,
+  Receipt,
 } from "../assets/db/types";
 import {
   View,
@@ -25,8 +27,9 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  Alert,
 } from "react-native";
-import defaults from "../assets/defaults";
+import defaults, { MENU_CATEGORY_NAME } from "../assets/defaults";
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -47,9 +50,12 @@ interface MakeOrderTabDetails {
 
   menu_category_name: string;
   color: string;
+  receipt_list: { receipt: Receipt; menu_name: string }[];
+  add_receipt: (item: { receipt: Receipt; menu_name: string }) => void;
 }
 export default function MakeOrderTab(props: MakeOrderTabDetails) {
-  const { menu_item, menu_category_name, color } = props;
+  const { menu_item, menu_category_name, color, receipt_list, add_receipt } =
+    props;
   const [fonts] = useFonts({
     Boogaloo: require("../assets/fonts/Boogaloo.ttf"),
     Monument: require("../assets/fonts/Monument Extended.otf"),
@@ -63,7 +69,6 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
   function add_add_ons(add_on_object: { [key: string]: number }) {
-    console.log(add_on_object);
     setAddOn([...addOn, add_on_object]);
   }
 
@@ -73,9 +78,86 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
     setAddOn(newArray);
   }
 
-  useEffect(() => {
-    console.log(addOn);
-  }, [addOn]);
+  function makeReceipt(): { receipt: Receipt; menu_name: string } {
+    let add_on_price = 0;
+
+    addOn.map((el) => {
+      add_on_price += Object.values(el)[0];
+    });
+
+    let addOnStringResult = "";
+
+    if (addOn.length === 0) {
+      addOnStringResult = "";
+    } else if (addOn.length === 1) {
+      addOnStringResult = Object.keys(addOn[0])[0];
+    } else if (addOn.length === 2) {
+      addOnStringResult =
+        Object.keys(addOn[0])[0] + " and " + Object.keys(addOn[1])[0];
+    } else {
+      for (let index = 0; index < addOn.length - 1; index++) {
+        addOnStringResult += Object.keys(addOn[index])[0] + ", ";
+      }
+      addOnStringResult =
+        addOnStringResult + " and " + Object.keys(addOn[addOn.length - 1])[0];
+    }
+
+    let receiptType = "DRINKS";
+
+    if (menu_item !== null) {
+      if (typeof menu_item.price === "number") {
+        receiptType = MENU_CATEGORY_NAME.OTHERS.toUpperCase();
+      } else if (Object.keys(menu_item.price).includes("12oz")) {
+        receiptType = MENU_CATEGORY_NAME.DRINKS.toUpperCase();
+      } else if (Object.keys(menu_item.price).includes("small")) {
+        receiptType = MENU_CATEGORY_NAME.FRIES.toUpperCase();
+      } else if (Object.keys(menu_item.price).includes("8pcs")) {
+        receiptType = MENU_CATEGORY_NAME.CHEESESTICK.toUpperCase();
+      } else if (Object.keys(menu_item.price).includes("with Fruit Juice")) {
+        receiptType = MENU_CATEGORY_NAME.SNACK_WITH_DRINK.toUpperCase();
+      } else if (Object.keys(menu_item.price).includes("3pcs")) {
+        receiptType = MENU_CATEGORY_NAME.SIOMAI.toUpperCase();
+      } else {
+        receiptType = MENU_CATEGORY_NAME.SUPER_MEAL.toUpperCase();
+      }
+    }
+
+    const receipt: Receipt = {
+      receipt_id: addOnStringResult,
+      order_id: "a",
+      type: receiptType,
+      item_id: menu_item?.id || "",
+      specifications:
+        size === null || receiptType === MENU_CATEGORY_NAME.OTHERS.toUpperCase()
+          ? ""
+          : Object.keys(size)[0],
+      quantity: quantity,
+      add_on_price: add_on_price,
+      item_price:
+        menu_item === null
+          ? 0
+          : size !== null
+          ? menu_item?.price[
+              Object.keys(size)[0] as keyof typeof menu_item.price
+            ]
+          : 0,
+      total_price: totalPrice,
+    };
+
+    console.log(receipt);
+
+    const menu_name = `${
+      size
+        ? receiptType !== MENU_CATEGORY_NAME.OTHERS.toUpperCase()
+          ? Object.keys(size)[0] + " - "
+          : ""
+        : ""
+    }${menu_item?.menu_name} ${
+      addOn.length === 0 ? "" : `with ${addOnStringResult}`
+    }`;
+
+    return { receipt, menu_name };
+  }
 
   //reset
   useEffect(() => {
@@ -92,10 +174,6 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
       add_on_price += Object.values(el)[0];
     });
     const sizePrice = size === null ? 0 : Object.values(size)[0];
-    console.log(size);
-    console.log(add_on_price);
-    console.log(sizePrice);
-    console.log(quantity);
     setTotalPrice((sizePrice + add_on_price) * quantity);
   }, [size, addOn, quantity]);
 
@@ -117,7 +195,7 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
     total_price_text: {
       fontFamily: "Monument",
       color: "#2E8B57",
-      fontSize: hp(2),
+      fontSize: hp(1),
     },
     add_to_receipt_button: {
       paddingHorizontal: hp(1),
@@ -146,7 +224,7 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
     specifications_button_text: {
       fontFamily: "Poppins",
       textAlign: "center",
-      fontSize: hp(1.5),
+      fontSize: hp(1),
     },
 
     description_text: {
@@ -155,7 +233,7 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
     },
 
     menu_name: {
-      fontSize: hp(3),
+      fontSize: hp(2),
       fontFamily: "Monument",
     },
 
@@ -168,7 +246,7 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
 
     add_on_text: {
       fontFamily: "Poppins",
-      fontSize: hp(2),
+      fontSize: hp(1),
       textAlign: "center",
     },
 
@@ -188,13 +266,13 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
       },
 
       button: {
-        paddingVertical: hp(1),
-        paddingHorizontal: hp(1),
+        paddingVertical: hp(0.5),
+        paddingHorizontal: hp(0.5),
       },
 
       text: {
         fontFamily: "Monument",
-        fontSize: hp(2),
+        fontSize: hp(1),
         textAlign: "center",
       },
     });
@@ -230,6 +308,9 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
     setSizeFunction: () => void,
     price: number
   ) {
+    if (price === 0) {
+      return <></>;
+    }
     return (
       <TouchableOpacity
         style={[
@@ -307,7 +388,6 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
                         ]}
                         key={index}
                         onPress={() => {
-                          console.log(el);
                           add_add_ons({
                             [el]:
                               DrinksAddOnList.add_on[
@@ -330,8 +410,6 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
             </View>
           </View>
         </ScrollView>
-        {/* </View>
-        </ScrollView> */}
       </>
     );
   }
@@ -359,39 +437,40 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
   }
 
   function MenuTemplate(
-    item: Fries | Cheesestick | SnackWithDrink | Siomai | DrinkData
+    item: Fries | Cheesestick | SnackWithDrink | Siomai | DrinkData | SuperMeal
   ) {
     const prices = item.price;
-    console.log(prices);
 
     return (
-      <View style={{ flexGrow: 1, gap: hp(1) }}>
-        <Text style={[styles.menu_name]}>{item.menu_name}</Text>
-        <Image
-          source={images[item.menu_name as keyof typeof images]}
-          style={{ width: hp(15), height: hp(15), alignSelf: "center" }}
-        ></Image>
-        <View style={[styles.specification_button_container]}>
-          {Object.keys(item.price).map((el, index) => {
-            return SpecificationButton(
-              index,
-              el.charAt(0).toUpperCase() + el.slice(1),
-              () => {
-                setSize({ el: prices[el as keyof typeof prices] });
-              },
-              Object.values(prices)[index]
-            );
-          })}
+      <ScrollView>
+        <View style={{ flexGrow: 1, gap: hp(1) }}>
+          <Text style={[styles.menu_name]}>{item.menu_name}</Text>
+          <Image
+            source={images[item.menu_name as keyof typeof images]}
+            style={{ width: hp(15), height: hp(15), alignSelf: "center" }}
+          ></Image>
+          <View style={[styles.specification_button_container]}>
+            {Object.keys(item.price).map((el, index) => {
+              return SpecificationButton(
+                index,
+                el.charAt(0).toUpperCase() + el.slice(1),
+                () => {
+                  setSize({ [el]: prices[el as keyof typeof prices] });
+                },
+                Object.values(prices)[index]
+              );
+            })}
+          </View>
+          {!Object.keys(prices).includes("3pcs") &&
+          !Object.keys(prices).includes("12oz")
+            ? DipAddOnButton()
+            : null}
         </View>
-        {!Object.keys(prices).includes("3pcs") &&
-        !Object.keys(prices).includes("12oz")
-          ? DipAddOnButton()
-          : null}
-      </View>
+      </ScrollView>
     );
   }
 
-  function NonObjectPrice(item: SuperMeal | OtherData) {
+  function NonObjectPrice(item: OtherData) {
     return (
       <View style={{ flexGrow: 1, gap: hp(1) }}>
         <Text style={[styles.menu_name]}>{item.menu_name}</Text>
@@ -412,12 +491,17 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
     <View style={[styles.container, defaults.big_shadow]}>
       {menu_item !== null ? (
         typeof menu_item.price === "number" ? (
-          NonObjectPrice(menu_item as SuperMeal | OtherData)
+          NonObjectPrice(menu_item as OtherData)
         ) : Object.keys(menu_item.price).includes("12oz") ? (
           Drink(menu_item as DrinkData)
         ) : (
           MenuTemplate(
-            menu_item as Fries | Cheesestick | SnackWithDrink | Siomai
+            menu_item as
+              | Fries
+              | Cheesestick
+              | SnackWithDrink
+              | Siomai
+              | SuperMeal
           )
         )
       ) : (
@@ -428,6 +512,19 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
         <Text style={[styles.total_price_text]}>PRICE: P{totalPrice}</Text>
         <TouchableOpacity
           style={[styles.add_to_receipt_button, defaults.small_shadow]}
+          onPress={() => {
+            size === null
+              ? Alert.alert(
+                  "No size selected",
+                  "Please select a size to add to your receipt."
+                )
+              : add_receipt(makeReceipt());
+            setSize(null);
+            setSizeIndexSelected(-1);
+            setQuantity(1);
+            setAddOn([]);
+            setTotalPrice(0);
+          }}
         >
           <Text style={[styles.add_to_receipt_text]}>Add to Receipt</Text>
         </TouchableOpacity>

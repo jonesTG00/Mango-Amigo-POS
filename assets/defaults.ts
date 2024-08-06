@@ -48,10 +48,10 @@ export default StyleSheet.create({
 export enum MENU_CATEGORY_NAME {
   DRINKS = "Drinks",
   FRIES = "Fries",
-  CHEESESTICK = "Cheesestick",
-  SNACK_WITH_DRINK = "Snack with Drink",
+  CHEESESTICK = "Cheesesticks",
+  SNACK_WITH_DRINK = "Snack with Drinks",
   SIOMAI = "Siomai",
-  SUPER_MEAL = "Super Meal",
+  SUPER_MEAL = "Super Meals",
   FRIES_AND_CHEESESTICK = "Fries and Cheesestick",
   SIOMAI_AND_SUPERMEAL = "Siomai and Supermeal",
   OTHERS = "Others",
