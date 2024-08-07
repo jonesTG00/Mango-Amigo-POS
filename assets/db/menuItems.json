@@ -130,7 +130,6 @@
     {
       "id": "SM",
       "menu_name": "Super Meal",
-      "siomai": 3,
       "price": {
         "SM1 (3pcs siomai + 1 rice)": 50,
         "SM2 (4pcs siomai + 1 rice)": 60,

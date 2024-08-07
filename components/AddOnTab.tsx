@@ -45,7 +45,7 @@ export default function AddOnTab(props: AddOnTabDetails) {
       alignContent: "center",
     },
     text_style: {
-      fontSize: hp(.75),
+      fontSize: hp(0.75),
       fontFamily: "Monument",
       textAlign: "center",
       flexGrow: 1,
@@ -53,7 +53,7 @@ export default function AddOnTab(props: AddOnTabDetails) {
 
     delete_style: {
       fontFamily: "Boogaloo",
-      fontSize: hp(.75),
+      fontSize: hp(0.75),
       color: "red",
       textAlign: "center",
     },

@@ -34,6 +34,7 @@ import MakeOrderTab from "./MakeOrderTab";
 import menuJson from "../assets/db/menuItems.json";
 import AddOnTab from "./AddOnTab";
 import ReceiptTab from "./ReceiptTab";
+import { useSQLiteContext } from "expo-sqlite";
 
 interface ModalMenuDetails {
   onClose: () => void;
@@ -60,7 +61,7 @@ export default function MenuModal(props: ModalMenuDetails) {
     setToAddReceipt([...toAddReceipt, item]);
   }
 
-  function removeFromReceipt(id: string) {
+  function removeFromReceipt(id: number) {
     const newArray = [...toAddReceipt];
     const index = newArray.findIndex((item) => item.receipt.receipt_id === id);
     newArray.splice(index, 1);
@@ -115,6 +116,8 @@ export default function MenuModal(props: ModalMenuDetails) {
       gap: wp(1),
     },
   });
+
+  const db = useSQLiteContext();
 
   return (
     <>
@@ -233,8 +236,8 @@ export default function MenuModal(props: ModalMenuDetails) {
               <ReceiptTab
                 width={"35%"}
                 receipt_list={toAddReceipt}
-                remove_from_receipt={removeFromReceipt} 
-                checkout={false}                
+                remove_from_receipt={removeFromReceipt}
+                checkout={false}
               />
             </View>
             <TouchableOpacity
@@ -246,7 +249,7 @@ export default function MenuModal(props: ModalMenuDetails) {
                 onClose();
               }}
             >
-              <Text style={styles.backText}>Close</Text>
+              <Text style={styles.backText}>Add & Close</Text>
             </TouchableOpacity>
           </View>
         </View>

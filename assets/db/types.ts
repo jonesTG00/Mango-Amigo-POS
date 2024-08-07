@@ -78,7 +78,6 @@ export interface SiomaiPrice {
 export interface SuperMeal {
   id: string;
   menu_name: string;
-  siomai: number;
   price: SuperMealPrice;
 }
 
@@ -189,7 +188,7 @@ export interface OrderSummary {
 }
 
 export interface Receipt {
-  receipt_id: string;
+  receipt_id: number;
   order_id: string;
   type: string;
   item_id: string;
@@ -198,4 +197,11 @@ export interface Receipt {
   add_on_price: number;
   item_price: number;
   total_price: number;
+}
+
+export interface AddOnReceipt {
+  receipt_id: number;
+  order_id: number;
+  for: number;
+  add_ons_id: string;
 }

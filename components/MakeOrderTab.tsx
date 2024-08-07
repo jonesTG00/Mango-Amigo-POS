@@ -123,8 +123,8 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
     }
 
     const receipt: Receipt = {
-      receipt_id: addOnStringResult,
-      order_id: "a",
+      receipt_id: Date.now(),
+      order_id: "",
       type: receiptType,
       item_id: menu_item?.id || "",
       specifications:

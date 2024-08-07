@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import MenuModal from "./MenuModal";
 import menuJson from "../assets/db/menuItems.json";
 import { Receipt } from "../assets/db/types";
+import { useSQLiteContext } from "expo-sqlite";
 
 interface MenuDetails {
   menu_category_name: string;

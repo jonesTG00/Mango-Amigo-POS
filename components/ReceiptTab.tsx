@@ -5,6 +5,7 @@ import {
   ImageBackground,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 
 import * as React from "react";
@@ -19,11 +20,13 @@ import { useFonts } from "expo-font";
 import defaultStyles from "../assets/defaults";
 import { Receipt } from "../assets/db/types";
 import { useEffect, useState } from "react";
+import menuJson from "../assets/db/menuItems.json";
+import { useSQLiteContext } from "expo-sqlite";
 
 interface ReceiptTabDetails {
   width: `${number}%`;
   receipt_list: { receipt: Receipt; menu_name: string }[] | [];
-  remove_from_receipt: (id: string) => void;
+  remove_from_receipt: (id: number) => void;
   checkout: boolean;
 }
 
@@ -34,6 +37,14 @@ export default function ReceiptTab(props: ReceiptTabDetails) {
     Monument: require("../assets/fonts/Monument Extended.otf"),
     Poppins: require("../assets/fonts/Poppins.ttf"),
   });
+
+  useEffect(() => {
+    let sum = 0;
+    for (let index = 0; index < receipt_list.length; index++) {
+      sum += receipt_list[index].receipt.total_price;
+    }
+    setTotal(sum);
+  }, [receipt_list]);
 
   const styles = StyleSheet.create({
     container: {
@@ -74,22 +85,39 @@ export default function ReceiptTab(props: ReceiptTabDetails) {
     },
     checkout_container: {
       width: "100%",
-      backgroundColor: "red",
       display: "flex",
       flexDirection: "column",
-      justifyContent: "center"
-    }
+      justifyContent: "center",
+      paddingVertical: hp(1),
+      paddingHorizontal: hp(2),
+      borderRadius: hp(1),
+    },
+
+    total_text: {
+      fontFamily: "Monument",
+      fontSize: hp(2),
+    },
+
+    checkout: {
+      paddingHorizontal: hp(1),
+      paddingVertical: hp(2),
+      alignSelf: "flex-end",
+    },
   });
 
-  function setBackgroundColor(type: string): string{
-    if(type === 'DRINKS'){
+  function setBackgroundColor(type: string): string {
+    if (type === "DRINKS") {
       return "#FFB22C";
-    } else if(type === 'FRIES' || type === "CHEESESTICK" || type === "SNACK WITH DRINKS"){
-      return "#FF4C4C"
-    } else if (type === "SIOMAI" || type === "SUPER MEALS"){
-      return "#9A9DDD"
+    } else if (
+      type === "FRIES" ||
+      type === "CHEESESTICK" ||
+      type === "SNACK WITH DRINKS"
+    ) {
+      return "#FF4C4C";
+    } else if (type === "SIOMAI" || type === "SUPER MEALS") {
+      return "#9A9DDD";
     } else {
-      return "#FADDE1"
+      return "#FADDE1";
     }
   }
 
@@ -102,7 +130,11 @@ export default function ReceiptTab(props: ReceiptTabDetails) {
   ) {
     return (
       <TouchableOpacity
-        style={[styles.menu_item_button, defaultStyles.small_shadow, {backgroundColor: setBackgroundColor(item.receipt.type)}]}
+        style={[
+          styles.menu_item_button,
+          defaultStyles.small_shadow,
+          { backgroundColor: setBackgroundColor(item.receipt.type) },
+        ]}
         onPress={() => remove_from_receipt(item.receipt.receipt_id)}
         key={index}
       >
@@ -154,16 +186,33 @@ export default function ReceiptTab(props: ReceiptTabDetails) {
         </View>
       </ScrollView>
 
-{checkout && <View style={[styles.checkout_container]} >
-        <Text>
-          <Text>
-            Total Price
+      {checkout && (
+        <View
+          style={[
+            styles.checkout_container,
+            defaultStyles.small_shadow,
+            total === 0
+              ? { backgroundColor: "#f94449" }
+              : { backgroundColor: "#03C04A" },
+          ]}
+        >
+          <Text style={[styles.total_text]}>
+            <Text style={{ color: "black" }}>Total Price:</Text> P{total}
+          </Text>
+          <TouchableOpacity
+            style={[styles.checkout, defaultStyles.small_shadow]}
+            onPress={() => {
+              receipt_list.length === 0
+                ? Alert.alert("No items added yet")
+                : console.log("wait hehehe");
+            }}
+          >
+            <Text style={{ fontFamily: "Monument", fontSize: hp(2) }}>
+              Checkout
             </Text>
-        </Text>
-        <TouchableOpacity style={{alignSelf: "flex-end"}}>
-          <Text>Checkout</Text>
-        </TouchableOpacity>
-      </View>}
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
