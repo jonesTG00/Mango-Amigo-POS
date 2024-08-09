@@ -18,6 +18,7 @@ import {
   SiomaiPrice,
   images,
   Receipt,
+  AddOnReceipt,
 } from "../assets/db/types";
 import {
   View,
@@ -36,6 +37,7 @@ import {
 } from "react-native-responsive-screen";
 import { useEffect, useState } from "react";
 import AddOnTab from "./AddOnTab";
+import menuJson from "../assets/db/menuItems.json";
 
 interface MakeOrderTabDetails {
   menu_item:
@@ -51,7 +53,11 @@ interface MakeOrderTabDetails {
   menu_category_name: string;
   color: string;
   receipt_list: { receipt: Receipt; menu_name: string }[];
-  add_receipt: (item: { receipt: Receipt; menu_name: string }) => void;
+  add_receipt: (item: {
+    receipt: Receipt;
+    menu_name: string;
+    add_on: AddOnReceipt[];
+  }) => void;
 }
 export default function MakeOrderTab(props: MakeOrderTabDetails) {
   const { menu_item, menu_category_name, color, receipt_list, add_receipt } =
@@ -78,7 +84,14 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
     setAddOn(newArray);
   }
 
-  function makeReceipt(): { receipt: Receipt; menu_name: string } {
+  function makeReceipt(): {
+    receipt: Receipt;
+    menu_name: string;
+    add_on: AddOnReceipt[];
+  } {
+    console.log("menu_item");
+    console.log(menu_item);
+
     let add_on_price = 0;
 
     addOn.map((el) => {
@@ -122,8 +135,9 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
       }
     }
 
+    const receipt_id = Date.now();
     const receipt: Receipt = {
-      receipt_id: Date.now(),
+      receipt_id: receipt_id,
       order_id: "",
       type: receiptType,
       item_id: menu_item?.id || "",
@@ -137,9 +151,11 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
         menu_item === null
           ? 0
           : size !== null
-          ? menu_item?.price[
-              Object.keys(size)[0] as keyof typeof menu_item.price
-            ]
+          ? typeof menu_item?.price === "number"
+            ? menu_item?.price
+            : menu_item?.price[
+                Object.keys(size)[0] as keyof typeof menu_item.price
+              ]
           : 0,
       total_price: totalPrice,
     };
@@ -156,7 +172,23 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
       addOn.length === 0 ? "" : `with ${addOnStringResult}`
     }`;
 
-    return { receipt, menu_name };
+    let add_on: AddOnReceipt[] = [];
+    if (addOn.length > 0) {
+      addOn.map((el) => {
+        add_on.push({
+          receipt_id: receipt_id,
+          order_id: "",
+          for: Object.keys(menuJson["Add On"][0].add_on).includes(
+            Object.keys(el)[0]
+          )
+            ? 0
+            : 1,
+          add_ons_id: Object.keys(el)[0],
+        });
+      });
+    }
+
+    return { receipt, menu_name, add_on };
   }
 
   //reset
@@ -185,6 +217,7 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
       padding: hp(2),
       display: "flex",
       flexDirection: "column",
+      gap: hp(1),
     },
     total_price_container: {
       display: "flex",
@@ -263,6 +296,9 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
+        borderTopColor: "black",
+        borderTopWidth: hp(0.1),
+        padding: hp(0.25),
       },
 
       button: {
@@ -369,7 +405,6 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
         gap: hp(1),
       },
     });
-    const prices: OzDrinkPrice = item.price;
     return (
       <>
         <ScrollView style={{ paddingBottom: hp(2), flexGrow: 0 }}>

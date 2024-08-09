@@ -18,8 +18,6 @@ import {
 import { useState } from "react";
 
 interface MenuListButtonDetails {
-  menu_category_name: string;
-  color: string;
   menu_name: string;
   menu_data:
     | DrinkData
@@ -39,14 +37,18 @@ interface MenuListButtonDetails {
       | SuperMeal
       | OtherData
   ) => void;
+  buttonBackground: string;
+  setButtonBackground: (item: string) => void;
+  color: string;
 }
 
 export default function MenuListButton(props: MenuListButtonDetails) {
   const {
-    menu_category_name,
     menu_name,
     menu_data,
     change_item_selected,
+    buttonBackground,
+    setButtonBackground,
     color,
   } = props;
 
@@ -57,7 +59,6 @@ export default function MenuListButton(props: MenuListButtonDetails) {
 
   const styles = StyleSheet.create({
     button: {
-      backgroundColor: "white",
       paddingHorizontal: hp(1),
       paddingVertical: hp(2),
     },
@@ -69,10 +70,17 @@ export default function MenuListButton(props: MenuListButtonDetails) {
 
   return (
     <TouchableOpacity
-      style={[styles.button, defaultStyles.small_shadow]}
+      style={[
+        styles.button,
+        defaultStyles.small_shadow,
+        buttonBackground === menu_data.menu_name
+          ? { backgroundColor: color }
+          : { backgroundColor: "white" },
+      ]}
       activeOpacity={0.8}
       onPress={() => {
         change_item_selected(menu_data);
+        setButtonBackground(menu_data.menu_name);
       }}
     >
       {/* <Image style={styles.menu_image}></Image> */}

@@ -14,17 +14,16 @@ import defaultStyles, { MENU_CATEGORY_NAME } from "../assets/defaults";
 import { useEffect, useState } from "react";
 import MenuModal from "./MenuModal";
 import menuJson from "../assets/db/menuItems.json";
-import { Receipt } from "../assets/db/types";
+import { AddOnReceipt, Receipt } from "../assets/db/types";
 import { useSQLiteContext } from "expo-sqlite";
 
 interface MenuDetails {
   menu_category_name: string;
   bg_color: string;
-  add_receipt: (item: { receipt: Receipt; menu_name: string }[]) => void;
 }
 
 export default function MenuButton(props: MenuDetails) {
-  const { menu_category_name, bg_color, add_receipt } = props;
+  const { menu_category_name, bg_color } = props;
 
   const [clicked, setClick] = useState<boolean>(false);
   const [modal, setModal] = useState<boolean>(false);
@@ -83,7 +82,6 @@ export default function MenuButton(props: MenuDetails) {
           menu_category_name={menu_category_name}
           isVisible={modal}
           color={bg_color}
-          add_receipt={add_receipt}
         />
       }
     </TouchableOpacity>

@@ -8,7 +8,6 @@ import {
 
 import * as React from "react";
 import MenuButton from "../components/MenuCategoryButton";
-import * as Orientation from "expo-screen-orientation";
 
 import {
   heightPercentageToDP as hp,
@@ -19,12 +18,23 @@ import { AddOnReceipt, Receipt } from "../assets/db/types";
 import { useFonts } from "expo-font";
 import defaultStyles, { MENU_CATEGORY_NAME } from "../assets/defaults";
 import ReceiptTab from "../components/ReceiptTab";
-import { useEffect, useState } from "react";
-import * as FileSystem from "expo-file-system";
-import { Asset } from "expo-asset";
-import * as SQLite from "expo-sqlite";
-import { SQLiteProvider, useSQLiteContext } from "expo-sqlite";
+import { createContext, useEffect, useState } from "react";
+import { useSQLiteContext } from "expo-sqlite";
 import menuJson from "../assets/db/menuItems.json";
+
+export interface ReceiptContextDetails {
+  receipt: {
+    receipt: Receipt;
+    menu_name: string;
+    add_on: AddOnReceipt[];
+  }[];
+  add_receipt: (
+    item: { receipt: Receipt; menu_name: string; add_on: AddOnReceipt[] }[]
+  ) => void;
+  remove_receipt: (id: number) => void;
+  reset_receipt: () => void;
+}
+export const ReceiptContext = createContext<ReceiptContextDetails | null>(null);
 
 export default function Landing() {
   const [fonts] = useFonts({
@@ -32,23 +42,12 @@ export default function Landing() {
   });
 
   const [receipt, setReceipt] = useState<
-    { receipt: Receipt; menu_name: string }[]
+    { receipt: Receipt; menu_name: string; add_on: AddOnReceipt[] }[]
   >([]);
 
-  const [addOnReceipt, setAddOnReceipt] = useState<AddOnReceipt[]>([]);
-
-  function add_add_on_receipt(item: AddOnReceipt[]) {
-    setAddOnReceipt([...addOnReceipt, ...item]);
-  }
-
-  function remove_add_on_receipt(id: number) {
-    const newArray = [...addOnReceipt];
-    const index = newArray.findIndex((item) => item.receipt_id === id);
-    newArray.splice(index, 1);
-    setAddOnReceipt(newArray);
-  }
-
-  function add_receipt(item: { receipt: Receipt; menu_name: string }[]) {
+  function add_receipt(
+    item: { receipt: Receipt; menu_name: string; add_on: AddOnReceipt[] }[]
+  ) {
     setReceipt([...receipt, ...item]);
   }
 
@@ -57,6 +56,10 @@ export default function Landing() {
     const index = newArray.findIndex((item) => item.receipt.receipt_id === id);
     newArray.splice(index, 1);
     setReceipt(newArray);
+  }
+
+  function reset_receipt() {
+    setReceipt([]);
   }
 
   const style = StyleSheet.create({
@@ -115,8 +118,9 @@ export default function Landing() {
 
   const db = useSQLiteContext();
   async function logData() {
-    const checker = await db.getAllAsync(`SELECT * FROM drinks`);
-    if (checker.length === 0) {
+    await db.getAllAsync(`SELECT * FROM drinks`).catch(async () => {
+      console.log("creating");
+
       await db
         .execAsync(
           `
@@ -219,7 +223,7 @@ export default function Landing() {
           .then(() => console.log(el + " added"))
           .catch((e) => console.log(e));
       });
-    }
+    });
     // await db
     //   .execAsync(
     //     `
@@ -228,13 +232,26 @@ export default function Landing() {
     //     `
     //   )
     //   .then(() => console.log("adjusted"));
+    const res = await db.getAllAsync(`SELECT * FROM drinks`);
+    console.log(res);
+
     console.log("ran");
   }
 
   useEffect(() => {
     logData();
-    // console.log(Date.now());
   }, []);
+
+  useEffect(() => {
+    if (receipt.length > 0) {
+      receipt.map((el) => {
+        console.log(
+          "add on for receipt number " + el.receipt.receipt_id + " : "
+        );
+        console.log(el.add_on);
+      });
+    }
+  }, [receipt]);
 
   if (!fonts) {
     return <Text>Wait</Text>;
@@ -242,33 +259,31 @@ export default function Landing() {
 
   return (
     <SafeAreaView>
-      <ImageBackground source={require("../assets/img/mango-pattern.jpg")}>
-        <View style={style.container}>
-          <ReceiptTab
-            width={"40%"}
-            receipt_list={receipt}
-            remove_from_receipt={remove_receipt}
-            checkout={true}
-          />
-          <View style={[style.menuDiv, defaultStyles.big_shadow]}>
-            <View style={style.menuButtonContainer}>
-              <Text style={{ fontFamily: "Monument", fontSize: hp(4) }}>
-                Menu
-              </Text>
-              {default_menu.map((el, index) => {
-                return (
-                  <MenuButton
-                    menu_category_name={el.category}
-                    bg_color={el.bg_color}
-                    key={index}
-                    add_receipt={add_receipt}
-                  />
-                );
-              })}
+      <ReceiptContext.Provider
+        value={{ receipt, add_receipt, remove_receipt, reset_receipt }}
+      >
+        <ImageBackground source={require("../assets/img/mango-pattern.jpg")}>
+          <View style={style.container}>
+            <ReceiptTab width={"40%"} checkout={true} editable={true} />
+            <View style={[style.menuDiv, defaultStyles.big_shadow]}>
+              <View style={style.menuButtonContainer}>
+                <Text style={{ fontFamily: "Monument", fontSize: hp(4) }}>
+                  Menu
+                </Text>
+                {default_menu.map((el, index) => {
+                  return (
+                    <MenuButton
+                      menu_category_name={el.category}
+                      bg_color={el.bg_color}
+                      key={index}
+                    />
+                  );
+                })}
+              </View>
             </View>
           </View>
-        </View>
-      </ImageBackground>
+        </ImageBackground>
+      </ReceiptContext.Provider>
     </SafeAreaView>
   );
 }

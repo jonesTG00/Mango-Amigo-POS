@@ -26,8 +26,9 @@ import {
   OtherList,
   OtherData,
   Receipt,
+  AddOnReceipt,
 } from "../assets/db/types";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import MenuItemsButton from "./MenuItemsButton";
 import MakeOrderTab from "./MakeOrderTab";
 
@@ -35,28 +36,31 @@ import menuJson from "../assets/db/menuItems.json";
 import AddOnTab from "./AddOnTab";
 import ReceiptTab from "./ReceiptTab";
 import { useSQLiteContext } from "expo-sqlite";
+import { ReceiptContext, ReceiptContextDetails } from "./Landing";
+import MenuModalReceipt from "./MenuModalReceipt";
 
 interface ModalMenuDetails {
   onClose: () => void;
   menu_category_name: string;
   isVisible: boolean;
   color: string;
-  add_receipt: (item: { receipt: Receipt; menu_name: string }[]) => void;
 }
 export default function MenuModal(props: ModalMenuDetails) {
-  const { onClose, menu_category_name, isVisible, color, add_receipt } = props;
+  const { onClose, menu_category_name, isVisible, color } = props;
   const [fonts] = useFonts({
     Boogaloo: require("../assets/fonts/Boogaloo.ttf"),
     Monument: require("../assets/fonts/Monument Extended.otf"),
   });
 
   const [toAddReceipt, setToAddReceipt] = useState<
-    { receipt: Receipt; menu_name: string }[]
+    { receipt: Receipt; menu_name: string; add_on: AddOnReceipt[] }[]
   >([]);
+  const [buttonBackground, setButtonBackground] = useState<string>("");
 
   function addToTemporaryReceipt(item: {
     receipt: Receipt;
     menu_name: string;
+    add_on: AddOnReceipt[];
   }) {
     setToAddReceipt([...toAddReceipt, item]);
   }
@@ -95,14 +99,14 @@ export default function MenuModal(props: ModalMenuDetails) {
     },
     backButton: {
       padding: wp(1),
-      width: "15%",
+      width: "30%",
       alignItems: "center",
       alignSelf: "flex-end",
     },
     backText: {
       color: "black",
       fontFamily: "Monument",
-      fontSize: hp(2),
+      fontSize: hp(1),
     },
     scrollView: {
       width: "25%",
@@ -117,7 +121,7 @@ export default function MenuModal(props: ModalMenuDetails) {
     },
   });
 
-  const db = useSQLiteContext();
+  const receiptContext = useContext(ReceiptContext) as ReceiptContextDetails;
 
   return (
     <>
@@ -142,11 +146,12 @@ export default function MenuModal(props: ModalMenuDetails) {
                       {el.map((menu) => {
                         return (
                           <MenuItemsButton
-                            menu_category_name={menu_category_name}
                             menu_name={menu.menu_name}
                             menu_data={menu}
                             change_item_selected={setItemSelected}
                             key={menu.id}
+                            buttonBackground={buttonBackground}
+                            setButtonBackground={setButtonBackground}
                             color={color}
                           />
                         );
@@ -161,11 +166,12 @@ export default function MenuModal(props: ModalMenuDetails) {
                         {el.map((menu) => {
                           return (
                             <MenuItemsButton
-                              menu_category_name={menu_category_name}
                               menu_name={menu.menu_name}
                               menu_data={menu}
                               change_item_selected={setItemSelected}
                               key={menu.id}
+                              buttonBackground={buttonBackground}
+                              setButtonBackground={setButtonBackground}
                               color={color}
                             />
                           );
@@ -181,11 +187,12 @@ export default function MenuModal(props: ModalMenuDetails) {
                         {el.map((menu) => {
                           return (
                             <MenuItemsButton
-                              menu_category_name={menu_category_name}
                               menu_name={menu.menu_name}
                               menu_data={menu}
                               change_item_selected={setItemSelected}
                               key={menu.id}
+                              buttonBackground={buttonBackground}
+                              setButtonBackground={setButtonBackground}
                               color={color}
                             />
                           );
@@ -199,11 +206,12 @@ export default function MenuModal(props: ModalMenuDetails) {
                       {el.map((menu) => {
                         return (
                           <MenuItemsButton
-                            menu_category_name={menu_category_name}
                             menu_name={menu.menu_name}
                             menu_data={menu}
                             change_item_selected={setItemSelected}
                             key={menu.id}
+                            buttonBackground={buttonBackground}
+                            setButtonBackground={setButtonBackground}
                             color={color}
                           />
                         );
@@ -233,17 +241,16 @@ export default function MenuModal(props: ModalMenuDetails) {
                 receipt_list={toAddReceipt}
                 add_receipt={addToTemporaryReceipt}
               />
-              <ReceiptTab
+              <MenuModalReceipt
                 width={"35%"}
                 receipt_list={toAddReceipt}
                 remove_from_receipt={removeFromReceipt}
-                checkout={false}
               />
             </View>
             <TouchableOpacity
               style={[styles.backButton, defaultStyles.small_shadow]}
               onPress={() => {
-                add_receipt(toAddReceipt);
+                receiptContext.add_receipt(toAddReceipt);
                 setToAddReceipt([]);
                 setItemSelected(null);
                 onClose();

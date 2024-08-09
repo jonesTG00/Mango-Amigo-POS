@@ -19,20 +19,23 @@ import { useFonts } from "expo-font";
 
 import defaultStyles from "../assets/defaults";
 import { AddOnReceipt, Receipt } from "../assets/db/types";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import menuJson from "../assets/db/menuItems.json";
 import { useSQLiteContext } from "expo-sqlite";
 import CheckoutModal from "./CheckoutModal";
-import { ReceiptContext, ReceiptContextDetails } from "./Landing";
 
 interface ReceiptTabDetails {
   width: `${number}%`;
-  checkout: boolean;
-  editable: boolean;
+  receipt_list: {
+    receipt: Receipt;
+    menu_name: string;
+    add_on: AddOnReceipt[];
+  }[];
+  remove_from_receipt: (id: number) => void;
 }
 
 export default function ReceiptTab(props: ReceiptTabDetails) {
-  const { width, checkout, editable } = props;
+  const { width, receipt_list, remove_from_receipt } = props;
   const [total, setTotal] = useState<number>(0);
   const [fonts] = useFonts({
     Monument: require("../assets/fonts/Monument Extended.otf"),
@@ -40,15 +43,14 @@ export default function ReceiptTab(props: ReceiptTabDetails) {
   });
 
   const [isVisibleCheckout, setIsVisibleCheckout] = useState<boolean>(false);
-  const receiptContext = useContext(ReceiptContext) as ReceiptContextDetails;
 
   useEffect(() => {
     let sum = 0;
-    for (let index = 0; index < receiptContext.receipt.length; index++) {
-      sum += receiptContext.receipt[index].receipt.total_price;
+    for (let index = 0; index < receipt_list.length; index++) {
+      sum += receipt_list[index].receipt.total_price;
     }
     setTotal(sum);
-  }, [receiptContext.receipt]);
+  }, [receipt_list]);
 
   const styles = StyleSheet.create({
     container: {
@@ -132,39 +134,14 @@ export default function ReceiptTab(props: ReceiptTabDetails) {
     },
     index: number
   ) {
-    if (editable) {
-      return (
-        <TouchableOpacity
-          style={[
-            styles.menu_item_button,
-            defaultStyles.small_shadow,
-            { backgroundColor: setBackgroundColor(item.receipt.type) },
-          ]}
-          onPress={() => receiptContext.remove_receipt(item.receipt.receipt_id)}
-          key={index}
-        >
-          <View style={{ width: "20%" }}>
-            <Text style={[styles.receipt_text]}>{item.receipt.quantity}</Text>
-          </View>
-          <View style={{ width: "60%" }}>
-            <Text style={[styles.receipt_text]}>{item.menu_name}</Text>
-          </View>
-          <View style={{ width: "20%" }}>
-            <Text style={[styles.receipt_text]}>
-              {item.receipt.total_price}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      );
-    }
-
     return (
-      <View
+      <TouchableOpacity
         style={[
           styles.menu_item_button,
           defaultStyles.small_shadow,
           { backgroundColor: setBackgroundColor(item.receipt.type) },
         ]}
+        onPress={() => remove_from_receipt(item.receipt.receipt_id)}
         key={index}
       >
         <View style={{ width: "20%" }}>
@@ -176,7 +153,7 @@ export default function ReceiptTab(props: ReceiptTabDetails) {
         <View style={{ width: "20%" }}>
           <Text style={[styles.receipt_text]}>{item.receipt.total_price}</Text>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   }
 
@@ -209,45 +186,11 @@ export default function ReceiptTab(props: ReceiptTabDetails) {
 
       <ScrollView>
         <View style={{ gap: hp(1) }}>
-          {receiptContext.receipt.map((el, index) => {
+          {receipt_list.map((el, index) => {
             return generate_receipt_details(el, index);
           })}
         </View>
       </ScrollView>
-
-      {checkout && (
-        <View
-          style={[
-            styles.checkout_container,
-            defaultStyles.small_shadow,
-            total === 0
-              ? { backgroundColor: "#f94449" }
-              : { backgroundColor: "#03C04A" },
-          ]}
-        >
-          <Text style={[styles.total_text]}>
-            <Text style={{ color: "black" }}>Total Price:</Text> P{total}
-          </Text>
-          <TouchableOpacity
-            style={[styles.checkout, defaultStyles.small_shadow]}
-            onPress={() => {
-              receiptContext.receipt.length === 0
-                ? Alert.alert("No items added yet")
-                : setIsVisibleCheckout(true);
-            }}
-          >
-            <Text style={{ fontFamily: "Monument", fontSize: hp(2) }}>
-              Checkout
-            </Text>
-            <CheckoutModal
-              receipt_list={receiptContext.receipt}
-              amount={total}
-              isVisible={isVisibleCheckout}
-              close={() => setIsVisibleCheckout(false)}
-            />
-          </TouchableOpacity>
-        </View>
-      )}
     </View>
   );
 }

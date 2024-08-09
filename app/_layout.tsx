@@ -6,7 +6,6 @@ import * as Orientation from "expo-screen-orientation";
 import { useEffect, useState } from "react";
 import * as FileSystem from "expo-file-system";
 import { Asset } from "expo-asset";
-import * as SQLite from "expo-sqlite";
 import { SQLiteProvider } from "expo-sqlite";
 import Landing from "../components/Landing";
 

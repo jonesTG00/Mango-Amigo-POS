@@ -201,7 +201,7 @@ export interface Receipt {
 
 export interface AddOnReceipt {
   receipt_id: number;
-  order_id: number;
-  for: number;
+  order_id: string;
+  for: number; // 0 drinks, 1 snacks
   add_ons_id: string;
 }
