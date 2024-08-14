@@ -86,6 +86,7 @@ export default function ReceiptTab(props: ReceiptTabDetails) {
     receipt_text: {
       fontFamily: "Poppins",
       textAlign: "center",
+      fontSize: hp(1),
     },
     checkout_container: {
       width: "100%",
@@ -162,13 +163,11 @@ export default function ReceiptTab(props: ReceiptTabDetails) {
       <View
         style={[
           styles.menu_item_button,
-          defaultStyles.small_shadow,
-          { backgroundColor: setBackgroundColor(item.receipt.type) },
         ]}
         key={index}
       >
         <View style={{ width: "20%" }}>
-          <Text style={[styles.receipt_text]}>{item.receipt.quantity}</Text>
+          <Text style={[styles.receipt_text ]}>{item.receipt.quantity}</Text>
         </View>
         <View style={{ width: "60%" }}>
           <Text style={[styles.receipt_text]}>{item.menu_name}</Text>
@@ -197,13 +196,13 @@ export default function ReceiptTab(props: ReceiptTabDetails) {
 
       <View style={{ display: "flex", flexDirection: "row" }}>
         <View style={{ width: "20%" }}>
-          <Text style={[styles.receipt_text]}>Qty</Text>
+          <Text style={[styles.receipt_text, {fontSize: hp(.75)}]}>Qty</Text>
         </View>
         <View style={{ width: "60%" }}>
-          <Text style={[styles.receipt_text]}>Menu Name</Text>
+          <Text style={[styles.receipt_text, {fontSize: hp(.75)}]}>Menu Name</Text>
         </View>
         <View style={{ width: "20%" }}>
-          <Text style={[styles.receipt_text]}>Price</Text>
+          <Text style={[styles.receipt_text, {fontSize: hp(.75)}]}>Price</Text>
         </View>
       </View>
 

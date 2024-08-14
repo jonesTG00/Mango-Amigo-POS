@@ -248,7 +248,8 @@ export default function MenuModal(props: ModalMenuDetails) {
               />
             </View>
             <TouchableOpacity
-              style={[styles.backButton, defaultStyles.small_shadow]}
+              style={[styles.backButton, defaultStyles.small_shadow, toAddReceipt.length === 0 ? { backgroundColor: "#ffffff" }
+                : { backgroundColor: "#03C04A" }]}
               onPress={() => {
                 receiptContext.add_receipt(toAddReceipt);
                 setToAddReceipt([]);
@@ -256,7 +257,11 @@ export default function MenuModal(props: ModalMenuDetails) {
                 onClose();
               }}
             >
-              <Text style={styles.backText}>Add & Close</Text>
+              <Text style={[styles.backText]}>
+                {
+                  toAddReceipt.length > 0 ? "Add & Close": "Close"
+                }
+                </Text>
             </TouchableOpacity>
           </View>
         </View>

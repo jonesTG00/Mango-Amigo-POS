@@ -124,9 +124,10 @@ export default function Landing() {
       await db
         .execAsync(
           `
+        CREATE TABLE IF NOT EXISTS categories(category_table_name TEXT PRIMARY KEY)
         CREATE TABLE IF NOT EXISTS receipts(receipt_id INTEGER NOT NULL, order_id TEXT NOT NULL, type TEXT NOT NULL, item_id TEXT NOT NULL, specifications TEXT NOT NULL, quantity INTEGER DEFAULT 1, add_on_price INTEGER DEFAULT 0, item_price INTEGER NOT NULL, total_price INTEGER NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (receipt_id, order_id));
         CREATE TABLE IF NOT EXISTS order_summary(order_id TEXT PRIMARY KEY NOT NULL, mode_of_payment TEXT CHECK (mode_of_payment IN ('GCASH', 'MAYA', "CASH")) NOT NULL, discount_percentage INTEGER DEFAULT 0, discount_cash INTEGER DEFAULT 0, d_t TEXT CHECK(d_t in ('D','T')) NOT NULL, raw_total NUMBER NOT NULL, total NUMBER NOT NULL, tendered_amount NUMBER NOT NULL, change NUMBER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
-         CREATE TABLE IF NOT EXISTS add_on_receipts(order_id TEXT NOT NULL, receipt_id INTEGER NOT NULL, for INTEGER NOT NULL, add_ons_id TEXT NOT NULL, PRIMARY KEY (order_id, receipt_id));
+        CREATE TABLE IF NOT EXISTS add_on_receipts(order_id TEXT NOT NULL, receipt_id INTEGER NOT NULL, for INTEGER NOT NULL, add_ons_id TEXT NOT NULL, PRIMARY KEY (order_id, receipt_id));
         CREATE TABLE IF NOT EXISTS drinks(drinks_id TEXT PRIMARY KEY NOT NULL, menu_name TEXT NOT NULL, "12oz" NUMBER DEFAULT 0, "16oz" NUMBER DEFAULT 0, "22oz" NUMBER DEFAULT 0);
         CREATE TABLE IF NOT EXISTS fries(fries_id TEXT PRIMARY KEY NOT NULL, menu_name TEXT NOT NULL, small NUMBER DEFAULT 0, medium NUMBER DEFAULT 0, large NUMBER DEFAULT 0, jumbo NUMBER DEFAULT 0, monster NUMBER DEFAULT 0);
         CREATE TABLE IF NOT EXISTS cheesesticks(cheesestick_id TEXT PRIMARY KEY NOT NULL, menu_name TEXT NOT NULL, "8pcs" NUMBER DEFAULT 0, "12pcs" NUMBER DEFAULT 0, "16pcs" NUMBER DEFAULT 0, "20pcs" NUMBER DEFAULT 0);
@@ -141,6 +142,10 @@ export default function Landing() {
         )
         .then(() => console.log("successs"))
         .catch((e) => console.log(e));
+
+      db.runAsync(`
+      INSERT INTO TABLE categories VALUES ("drinks"), ("fries"), ("cheesesticks"), ("snack_with_drinks"), ("siomai"), ("super_meals"), ("others")
+      `);
 
       menuJson["Drinks"].map((el) => {
         db.runAsync(

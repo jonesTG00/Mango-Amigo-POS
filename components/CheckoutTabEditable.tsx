@@ -221,7 +221,27 @@ export default function CheckoutTabEditable(props: CheckoutTabEditableDetails) {
             </View>
           )}
         </View>
+        <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: hp(1),
+                  alignItems: "center",
+                  marginTop: hp(2)
+                }}
+              >
+                <View>
+                  <Text style={[styles.checkout_content_text]}>
+                    Tendered Amount
+                  </Text>
+                </View>
+                <TextInput
+                  style={[styles.discount_text_input]}
+                  keyboardType="numeric"
+                />
+              </View>
       </ScrollView>
+      
     </View>
   );
 }

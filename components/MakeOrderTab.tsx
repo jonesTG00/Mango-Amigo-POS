@@ -482,7 +482,7 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
           <Text style={[styles.menu_name]}>{item.menu_name}</Text>
           <Image
             source={images[item.menu_name as keyof typeof images]}
-            style={{ width: hp(15), height: hp(15), alignSelf: "center" }}
+            style={{ width: hp(10), height: hp(10), alignSelf: "center" }}
           ></Image>
           <View style={[styles.specification_button_container]}>
             {Object.keys(item.price).map((el, index) => {
@@ -547,7 +547,8 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
       <View style={[styles.total_price_container]}>
         <Text style={[styles.total_price_text]}>PRICE: P{totalPrice}</Text>
         <TouchableOpacity
-          style={[styles.add_to_receipt_button, defaults.small_shadow]}
+          style={[styles.add_to_receipt_button, defaults.small_shadow, size === null ? { backgroundColor: "#ffffff" }
+            : { backgroundColor: "#03C04A" }]}
           onPress={() => {
             size === null
               ? Alert.alert(
