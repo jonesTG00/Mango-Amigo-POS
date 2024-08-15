@@ -59,6 +59,7 @@ export default function MenuListButton(props: MenuListButtonDetails) {
 
   const styles = StyleSheet.create({
     button: {
+      marginBottom: hp(1),
       paddingHorizontal: hp(1),
       paddingVertical: hp(2),
     },

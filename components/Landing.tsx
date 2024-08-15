@@ -118,13 +118,13 @@ export default function Landing() {
 
   const db = useSQLiteContext();
   async function logData() {
-    await db.getAllAsync(`SELECT * FROM drinks`).catch(async () => {
+    await db.getAllAsync(`SELECT * FROM categories`).catch(async () => {
       console.log("creating");
 
       await db
         .execAsync(
           `
-        CREATE TABLE IF NOT EXISTS categories(category_table_name TEXT PRIMARY KEY)
+        CREATE TABLE IF NOT EXISTS categories(category_table_name TEXT PRIMARY KEY);
         CREATE TABLE IF NOT EXISTS receipts(receipt_id INTEGER NOT NULL, order_id TEXT NOT NULL, type TEXT NOT NULL, item_id TEXT NOT NULL, specifications TEXT NOT NULL, quantity INTEGER DEFAULT 1, add_on_price INTEGER DEFAULT 0, item_price INTEGER NOT NULL, total_price INTEGER NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (receipt_id, order_id));
         CREATE TABLE IF NOT EXISTS order_summary(order_id TEXT PRIMARY KEY NOT NULL, mode_of_payment TEXT CHECK (mode_of_payment IN ('GCASH', 'MAYA', "CASH")) NOT NULL, discount_percentage INTEGER DEFAULT 0, discount_cash INTEGER DEFAULT 0, d_t TEXT CHECK(d_t in ('D','T')) NOT NULL, raw_total NUMBER NOT NULL, total NUMBER NOT NULL, tendered_amount NUMBER NOT NULL, change NUMBER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
         CREATE TABLE IF NOT EXISTS add_on_receipts(order_id TEXT NOT NULL, receipt_id INTEGER NOT NULL, for INTEGER NOT NULL, add_ons_id TEXT NOT NULL, PRIMARY KEY (order_id, receipt_id));
@@ -137,10 +137,9 @@ export default function Landing() {
         CREATE TABLE IF NOT EXISTS others(others_id TEXT PRIMARY KEY NOT NULL, menu_name TEXT NOT NULL, price NUMBER DEFAULT 0);
         CREATE TABLE IF NOT EXISTS drink_add_ons(menu_name TEXT NOT NULL PRIMARY KEY, price NUMBER DEFAULT 0);
         CREATE TABLE IF NOT EXISTS snack_add_ons(menu_name TEXT NOT NULL PRIMARY KEY, price NUMBER DEFAULT 0);
-        CREATE TABLE IF NOT EXISTS trial_table(name TEXT PRIMARY KEY UNIQUE, age NUMBER);
         `
         )
-        .then(() => console.log("successs"))
+        .then(() => console.log("table creation ran"))
         .catch((e) => console.log(e));
 
       db.runAsync(`
@@ -152,7 +151,10 @@ export default function Landing() {
           `INSERT INTO drinks VALUES ("${el.id}", "${el.menu_name}", ${el.price["12oz"]}, ${el.price["16oz"]}, ${el.price["22oz"]})`
         )
           .then(() => console.log(el.menu_name + " added"))
-          .catch((e) => console.log(e));
+          .catch((e) => {
+            console.log(e);
+            console.log("error in " + el.menu_name);
+          });
       });
 
       menuJson["Fries"].map((el) => {
@@ -160,7 +162,10 @@ export default function Landing() {
           `INSERT INTO fries VALUES ("${el.id}", "${el.menu_name}", ${el.price.small}, ${el.price.medium}, ${el.price.large}, ${el.price.jumbo}, ${el.price.monster})`
         )
           .then(() => console.log(el.menu_name + " added"))
-          .catch((e) => console.log(e));
+          .catch((e) => {
+            console.log(e);
+            console.log("error in " + el.menu_name);
+          });
       });
 
       menuJson["Cheesestick"].map((el) => {
@@ -168,7 +173,10 @@ export default function Landing() {
           `INSERT INTO cheesesticks VALUES ("${el.id}", "${el.menu_name}", ${el.price["8pcs"]}, ${el.price["12pcs"]}, ${el.price["16pcs"]}, ${el.price["20pcs"]})`
         )
           .then(() => console.log(el.menu_name + " added"))
-          .catch((e) => console.log(e));
+          .catch((e) => {
+            console.log(e);
+            console.log("error in " + el.menu_name);
+          });
       });
 
       menuJson["Snack with Drink"].map((el) => {
@@ -176,7 +184,10 @@ export default function Landing() {
           `INSERT INTO snack_with_drinks VALUES ("${el.id}", "${el.menu_name}", ${el.price["with Fruit Juice"]}, ${el.price["with Milk Tea"]})`
         )
           .then(() => console.log(el.menu_name + " added"))
-          .catch((e) => console.log(e));
+          .catch((e) => {
+            console.log(e);
+            console.log("error in " + el.menu_name);
+          });
       });
 
       menuJson["Siomai"].map((el) => {
@@ -184,7 +195,10 @@ export default function Landing() {
           `INSERT INTO siomai VALUES ("${el.id}", "${el.menu_name}", ${el.price["3pcs"]}, ${el.price["6pcs"]}, ${el.price["9pcs"]}, ${el.price["12pcs"]}, ${el.price["15pcs"]}, ${el.price["20pcs"]}, ${el.price["30pcs"]})`
         )
           .then(() => console.log(el.menu_name + " added"))
-          .catch((e) => console.log(e));
+          .catch((e) => {
+            console.log(e);
+            console.log("error in " + el.menu_name);
+          });
       });
 
       menuJson["Super Meal"].map((el) => {
@@ -192,7 +206,10 @@ export default function Landing() {
           `INSERT INTO super_meals VALUES ("${el.id}", "${el.menu_name}", ${el.price["SM1 (3pcs siomai + 1 rice)"]}, ${el.price["SM2 (4pcs siomai + 1 rice)"]}, ${el.price["SM3 (6pcs siomai + 1 rice)"]})`
         )
           .then(() => console.log(el.menu_name + " added"))
-          .catch((e) => console.log(e));
+          .catch((e) => {
+            console.log(e);
+            console.log("error in " + el.menu_name);
+          });
       });
 
       menuJson["Others"].map((el) => {
@@ -200,7 +217,10 @@ export default function Landing() {
           `INSERT INTO others VALUES ("${el.id}", "${el.menu_name}", ${el.price})`
         )
           .then(() => console.log(el.menu_name + " added"))
-          .catch((e) => console.log(e));
+          .catch((e) => {
+            console.log(e);
+            console.log("error in " + el.menu_name);
+          });
       });
 
       const drink_add_on = Object.keys(menuJson["Add On"][0].add_on);
@@ -213,7 +233,10 @@ export default function Landing() {
           })`
         )
           .then(() => console.log(el + " added"))
-          .catch((e) => console.log(e));
+          .catch((e) => {
+            console.log(e);
+            console.log("error in " + el);
+          });
       });
 
       const snack_add_on = Object.keys(menuJson["Add On"][1].add_on);
@@ -226,19 +249,37 @@ export default function Landing() {
           })`
         )
           .then(() => console.log(el + " added"))
-          .catch((e) => console.log(e));
+          .catch((e) => {
+            console.log(e);
+            console.log("error in " + el);
+          });
       });
     });
     // await db
     //   .execAsync(
     //     `
-    //     DROP TABLE add_on_receipts;
-    //     CREATE TABLE IF NOT EXISTS add_on_receipts(order_id TEXT NOT NULL, receipt_id INTEGER NOT NULL, for INTEGER NOT NULL, add_ons_id TEXT NOT NULL, PRIMARY KEY (order_id, receipt_id));
-    //     `
+    //       DROP TABLE categories;
+    //       DROP TABLE receipts;
+    //       DROP TABLE order_summary;
+    //       DROP TABLE add_on_receipts;
+    //       DROP TABLE drinks;
+    //       DROP TABLE fries;
+    //       DROP TABLE cheesesticks;
+    //       DROP TABLE snack_with_drinks;
+    //       DROP TABLE siomai;
+    //       DROP TABLE super_meals;
+    //       DROP TABLE others;
+    //       DROP TABLE drink_add_ons;
+    //       DROP TABLE snack_add_ons;
+    //       `
     //   )
-    //   .then(() => console.log("adjusted"));
-    const res = await db.getAllAsync(`SELECT * FROM drinks`);
-    console.log(res);
+    //   .then(() => console.log("deleted"))
+    //   .catch((e) => console.log(e))
+    //   .then(() => {
+    //     console.log("table deletion ran");
+    //   });
+    // const res = await db.getAllAsync(`SELECT * FROM drinks`);
+    // console.log(res);
 
     console.log("ran");
   }

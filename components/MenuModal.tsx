@@ -98,8 +98,8 @@ export default function MenuModal(props: ModalMenuDetails) {
       borderBottomColor: "#050301",
     },
     backButton: {
-      padding: wp(1),
-      width: "30%",
+      padding: hp(1),
+      width: "20%",
       alignItems: "center",
       alignSelf: "flex-end",
     },
@@ -248,8 +248,13 @@ export default function MenuModal(props: ModalMenuDetails) {
               />
             </View>
             <TouchableOpacity
-              style={[styles.backButton, defaultStyles.small_shadow, toAddReceipt.length === 0 ? { backgroundColor: "#ffffff" }
-                : { backgroundColor: "#03C04A" }]}
+              style={[
+                styles.backButton,
+                defaultStyles.small_shadow,
+                toAddReceipt.length === 0
+                  ? { backgroundColor: "#ffffff" }
+                  : { backgroundColor: "#03C04A" },
+              ]}
               onPress={() => {
                 receiptContext.add_receipt(toAddReceipt);
                 setToAddReceipt([]);
@@ -258,10 +263,8 @@ export default function MenuModal(props: ModalMenuDetails) {
               }}
             >
               <Text style={[styles.backText]}>
-                {
-                  toAddReceipt.length > 0 ? "Add & Close": "Close"
-                }
-                </Text>
+                {toAddReceipt.length > 0 ? "Add & Close" : "Close"}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
