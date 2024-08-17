@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   TextInput,
+  Alert,
 } from "react-native";
 import defaults from "../assets/defaults";
 import {
@@ -31,11 +32,13 @@ export default function CheckoutTabEditable(props: CheckoutTabEditableDetails) {
   const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [discountCash, setDiscountCash] = useState<number>(0);
   const [dineInTakeOut, setDineInTakeOut] = useState<string>("");
-  const [total, setTotal] = useState<number>(0);
+  const [total, setTotal] = useState<number>(amount);
+  const [tenderedAmount, setTenderedAmount] = useState<number>(0);
   const [selectedMOP, setSelectedMOP] = useState<number>(-1);
   const [discountVisibility, setDiscountVisibility] = useState<boolean>(false);
   const [itemAmount, setItemAmount] = useState<number>(0);
   const [addOnAmount, setAddOnAmount] = useState<number>(0);
+  const [uri, setURI] = useState<string>("");
 
   const MOP_LIST = ["CASH", "GCASH", "MAYA"];
   const dt = ["Dine-in", "Take-out"];
@@ -134,6 +137,75 @@ export default function CheckoutTabEditable(props: CheckoutTabEditableDetails) {
     setAddOnAmount(addOnTotal);
   }, [receipt_list]);
 
+  function handleDiscountPercentageChange(text: string) {
+    try {
+      setDiscountPercent(parseInt(text));
+    } catch (error) {
+      Alert.alert(error as string);
+    }
+  }
+
+  function handleDiscountCashChange(text: string) {
+    try {
+      setDiscountCash(parseInt(text));
+    } catch (error) {
+      Alert.alert(error as string);
+    }
+  }
+  function handleTenderedAmountChange(text: string) {
+    try {
+      setTenderedAmount(parseInt(text));
+    } catch (error) {
+      Alert.alert(error as string);
+    }
+  }
+
+  async function HandleCheckout() {
+    // const { receipt_list, amount } = props;
+    // const [mop, setMOP] = useState<string>("");
+    // const [discountPercent, setDiscountPercent] = useState<number>(0);
+    // const [discountCash, setDiscountCash] = useState<number>(0);
+    // const [dineInTakeOut, setDineInTakeOut] = useState<string>("");
+    // const [total, setTotal] = useState<number>(0);
+    // const [selectedMOP, setSelectedMOP] = useState<number>(-1);
+    // const [discountVisibility, setDiscountVisibility] = useState<boolean>(false);
+    // const [itemAmount, setItemAmount] = useState<number>(0);
+    // const [addOnAmount, setAddOnAmount] = useState<number>(0);
+    // const [uri, setURI] = useState<string>("");
+
+    if (mop === "") {
+      Alert.alert("MOP must be set");
+      return;
+    }
+
+    if ((mop === "GCASH" || mop === "MAYA") && uri === "") {
+      Alert.alert("Image of receipt is required for e-wallet payments");
+      return;
+    }
+
+    if (
+      discountPercent < 0 ||
+      discountPercent > 100 ||
+      discountCash > amount ||
+      discountCash < 0
+    ) {
+      Alert.alert("Invalid value for discounts");
+      return;
+    }
+
+    if (discountPercent !== 0) {
+      console.log("total before adjustment: " + total);
+      console.log("total before adjustment: " + total);
+      setTotal(
+        Math.ceil(amount - amount * (discountPercent / 100) - discountCash)
+      );
+      console.log("total after adjustment: " + total);
+    }
+    Alert.alert("Total is " + total);
+
+    Alert.alert("Done");
+  }
+
   return (
     <View style={[defaults.big_shadow, styles.checkout_container]}>
       <Text style={[styles.title_text, { textAlign: "auto" }]}>Deets</Text>
@@ -156,7 +228,9 @@ export default function CheckoutTabEditable(props: CheckoutTabEditableDetails) {
                 return specificationButtons(index, el, mop, setMOP);
               })}
             </View>
-            {(mop === "GCASH" || mop === "MAYA") && <FileUpload />}
+            {(mop === "GCASH" || mop === "MAYA") && (
+              <FileUpload uri={uri} setURI={setURI} />
+            )}
           </View>
           <View>
             <Text style={[styles.checkout_title_text]}>
@@ -199,6 +273,8 @@ export default function CheckoutTabEditable(props: CheckoutTabEditableDetails) {
                 <TextInput
                   style={[styles.discount_text_input]}
                   keyboardType="numeric"
+                  onChangeText={(e) => handleDiscountPercentageChange(e)}
+                  defaultValue="0"
                 />
               </View>
 
@@ -218,6 +294,8 @@ export default function CheckoutTabEditable(props: CheckoutTabEditableDetails) {
                 <TextInput
                   style={[styles.discount_text_input]}
                   keyboardType="numeric"
+                  defaultValue="0"
+                  onChangeText={(e) => handleDiscountCashChange(e)}
                 />
               </View>
             </View>
@@ -229,7 +307,7 @@ export default function CheckoutTabEditable(props: CheckoutTabEditableDetails) {
             flexDirection: "row",
             gap: hp(1),
             alignItems: "center",
-            marginTop: hp(2),
+            marginVertical: hp(1),
           }}
         >
           <View>
@@ -238,9 +316,24 @@ export default function CheckoutTabEditable(props: CheckoutTabEditableDetails) {
           <TextInput
             style={[styles.discount_text_input]}
             keyboardType="numeric"
+            onChangeText={handleTenderedAmountChange}
           />
         </View>
       </ScrollView>
+      <TouchableOpacity
+        style={[defaults.small_shadow, { width: "50%", alignSelf: "flex-end" }]}
+        onPress={HandleCheckout}
+      >
+        <Text
+          style={{
+            fontFamily: "Monument",
+            fontSize: hp(2),
+            textAlign: "center",
+          }}
+        >
+          Checkout
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }

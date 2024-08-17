@@ -84,10 +84,10 @@ export default function MenuModal(props: ModalMenuDetails) {
   >(null);
 
   const styles = StyleSheet.create({
-    modal_centered: { backgroundColor: color, padding: wp(3) },
+    modal_centered: { backgroundColor: color, padding: hp(2) },
     modalSize: {
       backgroundColor: "white",
-      padding: wp(3),
+      padding: hp(3),
       display: "flex",
       gap: hp(1),
     },

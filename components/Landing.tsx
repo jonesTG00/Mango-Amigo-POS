@@ -118,7 +118,7 @@ export default function Landing() {
 
   const db = useSQLiteContext();
   async function logData() {
-    await db.getAllAsync(`SELECT * FROM categories`).catch(async () => {
+    await db.getAllAsync(`SELECT * FROM categories;`).catch(async () => {
       console.log("creating");
 
       await db
@@ -143,12 +143,12 @@ export default function Landing() {
         .catch((e) => console.log(e));
 
       db.runAsync(`
-      INSERT INTO TABLE categories VALUES ("drinks"), ("fries"), ("cheesesticks"), ("snack_with_drinks"), ("siomai"), ("super_meals"), ("others")
+      INSERT INTO TABLE categories VALUES ("drinks"), ("fries"), ("cheesesticks"), ("snack_with_drinks"), ("siomai"), ("super_meals"), ("others");
       `);
 
       menuJson["Drinks"].map((el) => {
         db.runAsync(
-          `INSERT INTO drinks VALUES ("${el.id}", "${el.menu_name}", ${el.price["12oz"]}, ${el.price["16oz"]}, ${el.price["22oz"]})`
+          `INSERT INTO drinks VALUES ("${el.id}", "${el.menu_name}", ${el.price["12oz"]}, ${el.price["16oz"]}, ${el.price["22oz"]});`
         )
           .then(() => console.log(el.menu_name + " added"))
           .catch((e) => {
@@ -159,7 +159,7 @@ export default function Landing() {
 
       menuJson["Fries"].map((el) => {
         db.runAsync(
-          `INSERT INTO fries VALUES ("${el.id}", "${el.menu_name}", ${el.price.small}, ${el.price.medium}, ${el.price.large}, ${el.price.jumbo}, ${el.price.monster})`
+          `INSERT INTO fries VALUES ("${el.id}", "${el.menu_name}", ${el.price.small}, ${el.price.medium}, ${el.price.large}, ${el.price.jumbo}, ${el.price.monster});`
         )
           .then(() => console.log(el.menu_name + " added"))
           .catch((e) => {
@@ -170,7 +170,7 @@ export default function Landing() {
 
       menuJson["Cheesestick"].map((el) => {
         db.runAsync(
-          `INSERT INTO cheesesticks VALUES ("${el.id}", "${el.menu_name}", ${el.price["8pcs"]}, ${el.price["12pcs"]}, ${el.price["16pcs"]}, ${el.price["20pcs"]})`
+          `INSERT INTO cheesesticks VALUES ("${el.id}", "${el.menu_name}", ${el.price["8pcs"]}, ${el.price["12pcs"]}, ${el.price["16pcs"]}, ${el.price["20pcs"]})';`
         )
           .then(() => console.log(el.menu_name + " added"))
           .catch((e) => {
@@ -181,7 +181,7 @@ export default function Landing() {
 
       menuJson["Snack with Drink"].map((el) => {
         db.runAsync(
-          `INSERT INTO snack_with_drinks VALUES ("${el.id}", "${el.menu_name}", ${el.price["with Fruit Juice"]}, ${el.price["with Milk Tea"]})`
+          `INSERT INTO snack_with_drinks VALUES ("${el.id}", "${el.menu_name}", ${el.price["with Fruit Juice"]}, ${el.price["with Milk Tea"]});`
         )
           .then(() => console.log(el.menu_name + " added"))
           .catch((e) => {
@@ -192,7 +192,7 @@ export default function Landing() {
 
       menuJson["Siomai"].map((el) => {
         db.runAsync(
-          `INSERT INTO siomai VALUES ("${el.id}", "${el.menu_name}", ${el.price["3pcs"]}, ${el.price["6pcs"]}, ${el.price["9pcs"]}, ${el.price["12pcs"]}, ${el.price["15pcs"]}, ${el.price["20pcs"]}, ${el.price["30pcs"]})`
+          `INSERT INTO siomai VALUES ("${el.id}", "${el.menu_name}", ${el.price["3pcs"]}, ${el.price["6pcs"]}, ${el.price["9pcs"]}, ${el.price["12pcs"]}, ${el.price["15pcs"]}, ${el.price["20pcs"]}, ${el.price["30pcs"]});`
         )
           .then(() => console.log(el.menu_name + " added"))
           .catch((e) => {
@@ -203,7 +203,7 @@ export default function Landing() {
 
       menuJson["Super Meal"].map((el) => {
         db.runAsync(
-          `INSERT INTO super_meals VALUES ("${el.id}", "${el.menu_name}", ${el.price["SM1 (3pcs siomai + 1 rice)"]}, ${el.price["SM2 (4pcs siomai + 1 rice)"]}, ${el.price["SM3 (6pcs siomai + 1 rice)"]})`
+          `INSERT INTO super_meals VALUES ("${el.id}", "${el.menu_name}", ${el.price["SM1 (3pcs siomai + 1 rice)"]}, ${el.price["SM2 (4pcs siomai + 1 rice)"]}, ${el.price["SM3 (6pcs siomai + 1 rice)"]});`
         )
           .then(() => console.log(el.menu_name + " added"))
           .catch((e) => {
@@ -214,7 +214,7 @@ export default function Landing() {
 
       menuJson["Others"].map((el) => {
         db.runAsync(
-          `INSERT INTO others VALUES ("${el.id}", "${el.menu_name}", ${el.price})`
+          `INSERT INTO others VALUES ("${el.id}", "${el.menu_name}", ${el.price});`
         )
           .then(() => console.log(el.menu_name + " added"))
           .catch((e) => {
@@ -230,7 +230,7 @@ export default function Landing() {
             menuJson["Add On"][0].add_on[
               el as keyof (typeof menuJson)["Add On"][0]["add_on"]
             ]
-          })`
+          });`
         )
           .then(() => console.log(el + " added"))
           .catch((e) => {
@@ -246,7 +246,7 @@ export default function Landing() {
             menuJson["Add On"][1].add_on[
               el as keyof (typeof menuJson)["Add On"][1]["add_on"]
             ]
-          })`
+          });`
         )
           .then(() => console.log(el + " added"))
           .catch((e) => {
