@@ -21,7 +21,7 @@ export default function FileUpload(props: FileUploadDetails) {
     if (permission.status === ImagePicker.PermissionStatus.UNDETERMINED) {
       await ImagePicker.requestCameraPermissionsAsync();
     } else if (permission.status === ImagePicker.PermissionStatus.DENIED) {
-      Alert.alert("Allow permissions needed in settings to use this.");
+      Alert.alert("Allow camera permissions needed in settings to use this.");
     } else {
       console.log("granted");
       let result = await ImagePicker.launchCameraAsync({

@@ -8,7 +8,7 @@ import {
   TextInput,
   Alert,
 } from "react-native";
-import defaults from "../assets/defaults";
+import defaults, { ReceiptImagesURI } from "../assets/defaults";
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -16,6 +16,9 @@ import {
 import { useEffect, useState } from "react";
 import { AddOnReceipt, Receipt } from "../assets/db/types";
 import FileUpload from "./FileUpload";
+import { useSQLiteContext } from "expo-sqlite";
+import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
 
 interface CheckoutTabEditableDetails {
   receipt_list: {
@@ -32,9 +35,7 @@ export default function CheckoutTabEditable(props: CheckoutTabEditableDetails) {
   const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [discountCash, setDiscountCash] = useState<number>(0);
   const [dineInTakeOut, setDineInTakeOut] = useState<string>("");
-  const [total, setTotal] = useState<number>(amount);
   const [tenderedAmount, setTenderedAmount] = useState<number>(0);
-  const [selectedMOP, setSelectedMOP] = useState<number>(-1);
   const [discountVisibility, setDiscountVisibility] = useState<boolean>(false);
   const [itemAmount, setItemAmount] = useState<number>(0);
   const [addOnAmount, setAddOnAmount] = useState<number>(0);
@@ -42,6 +43,8 @@ export default function CheckoutTabEditable(props: CheckoutTabEditableDetails) {
 
   const MOP_LIST = ["CASH", "GCASH", "MAYA"];
   const dt = ["Dine-in", "Take-out"];
+
+  const db = useSQLiteContext();
 
   const styles = StyleSheet.create({
     checkout_title_text: {
@@ -173,37 +176,170 @@ export default function CheckoutTabEditable(props: CheckoutTabEditableDetails) {
     // const [addOnAmount, setAddOnAmount] = useState<number>(0);
     // const [uri, setURI] = useState<string>("");
 
-    if (mop === "") {
-      Alert.alert("MOP must be set");
-      return;
-    }
-
     if ((mop === "GCASH" || mop === "MAYA") && uri === "") {
       Alert.alert("Image of receipt is required for e-wallet payments");
       return;
     }
 
+    const permission = await ImagePicker.getMediaLibraryPermissionsAsync();
+
     if (
-      discountPercent < 0 ||
-      discountPercent > 100 ||
-      discountCash > amount ||
-      discountCash < 0
+      permission.status === ImagePicker.PermissionStatus.UNDETERMINED ||
+      permission.status === ImagePicker.PermissionStatus.DENIED
     ) {
-      Alert.alert("Invalid value for discounts");
-      return;
-    }
+      const status = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status.granted === true) {
+        HandleCheckout();
+      }
+    } else {
+      if (mop === "") {
+        Alert.alert("MOP must be set");
+        return;
+      }
 
-    if (discountPercent !== 0) {
-      console.log("total before adjustment: " + total);
-      console.log("total before adjustment: " + total);
-      setTotal(
-        Math.ceil(amount - amount * (discountPercent / 100) - discountCash)
+      if (dineInTakeOut === "") {
+        Alert.alert("Choose if dine-in or take-out");
+        return;
+      }
+
+      if (
+        discountPercent < 0 ||
+        discountPercent > 100 ||
+        discountCash > amount ||
+        discountCash < 0
+      ) {
+        Alert.alert("Invalid value for discounts");
+        return;
+      }
+
+      let afterDiscount = amount;
+      if (discountPercent !== 0) {
+        console.log(
+          "formula : " + Math.ceil(amount - amount * (discountPercent / 100))
+        );
+
+        afterDiscount = Math.ceil(
+          afterDiscount - afterDiscount * (discountPercent / 100)
+        );
+        console.log("total after adjustment: " + afterDiscount);
+      }
+
+      if (discountCash !== 0) {
+        afterDiscount = afterDiscount - discountCash;
+        console.log("total after adjustment" + afterDiscount);
+      }
+
+      Alert.alert("Total is " + afterDiscount);
+
+      if (tenderedAmount < afterDiscount) {
+        Alert.alert("Tendered amount is lower than total price after discount");
+        return;
+      }
+
+      const orderId = Date.now();
+
+      // receipts(receipt_id INTEGER NOT NULL, order_id TEXT NOT NULL, type TEXT NOT NULL, item_id TEXT NOT NULL, specifications TEXT NOT NULL, quantity INTEGER DEFAULT 1, add_on_price INTEGER DEFAULT 0, item_price INTEGER NOT NULL, total_price INTEGER NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (receipt_id, order_id));
+      // order_summary(order_id TEXT PRIMARY KEY NOT NULL, mode_of_payment TEXT CHECK (mode_of_payment IN ('GCASH', 'MAYA', "CASH")) NOT NULL, discount_percentage INTEGER DEFAULT 0, discount_cash INTEGER DEFAULT 0, d_t TEXT CHECK(d_t in ('D','T')) NOT NULL, raw_total NUMBER NOT NULL, total NUMBER NOT NULL, tendered_amount NUMBER NOT NULL, change NUMBER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+      // add_on_receipts(order_id TEXT NOT NULL, receipt_id INTEGER NOT NULL, for INTEGER NOT NULL, add_ons_id TEXT NOT NULL, PRIMARY KEY (order_id, receipt_id));
+
+      await db
+        .execAsync(
+          `
+      INSERT INTO order_summary(order_id, mode_of_payment, discount_percentage, discount_cash, d_t, raw_total, total, tendered_amount, change) VALUES (
+      "${orderId}",
+      "${mop}",
+      ${discountPercent},
+      ${discountCash},
+      "${dineInTakeOut === "Dine-in" ? "D" : "T"}",
+      ${amount},
+      ${afterDiscount},
+      ${tenderedAmount},
+      ${tenderedAmount - afterDiscount}
       );
-      console.log("total after adjustment: " + total);
-    }
-    Alert.alert("Total is " + total);
+      `
+        )
+        .then(() => console.log("order summary added"))
+        .catch((e) => {
+          console.log("error in order summary");
 
-    Alert.alert("Done");
+          console.log(e);
+        })
+        .finally(() => console.log("inserting to order_summary done"));
+
+      receipt_list.map(async (el) => {
+        await db
+          .execAsync(
+            `
+        INSERT INTO receipts(receipt_id, order_id, type, item_id, specifications, quantity, add_on_price, item_price, total_price) VALUES (
+        ${el.receipt.receipt_id},
+        "${orderId}",
+        "${el.receipt.type}",
+        "${el.receipt.item_id}",
+        "${el.receipt.specifications}",
+        ${el.receipt.quantity},
+        ${el.receipt.add_on_price},
+        ${el.receipt.item_price},
+        ${el.receipt.total_price}
+        );
+        `
+          )
+          .then(() => console.log(`${el.menu_name} added`))
+          .catch((e) => {
+            console.log("error in receipts");
+
+            console.log(e);
+          })
+          .finally(() => console.log("inserting to receipt done"));
+
+        if (mop === "GCASH" || mop === "MAYA") {
+        }
+      });
+
+      receipt_list.map((el) => {
+        if (el.receipt.add_on_price !== 0) {
+          el.add_on.map(async (add_on) => {
+            await db
+              .execAsync(
+                `
+            INSERT INTO add_on_receipts VALUES (
+            "${add_on.order_id}",
+            ${add_on.receipt_id},
+            ${add_on.for},
+            "${add_on.add_ons_id}"
+            );
+            `
+              )
+              .then(() => console.log(`${add_on.add_ons_id} added`))
+              .catch((e) => {
+                console.log("error in receipts");
+
+                console.log(e);
+              })
+              .finally(() => console.log("inserting to add_on done"));
+          });
+        }
+      });
+
+      await db
+        .getAllAsync(
+          `
+      SELECT * FROM order_summary
+      `
+        )
+        .then((e) => console.log(e));
+      try {
+        // const newURI = "../assets/receipts/" + orderId + ".jpg";
+        const newURI = ReceiptImagesURI(orderId.toString());
+        await FileSystem.copyAsync({ from: uri, to: newURI }).then(() =>
+          console.log("image transferred")
+        );
+        await FileSystem.deleteAsync(uri);
+      } catch (error) {
+        console.log(error);
+      }
+
+      Alert.alert("Done");
+    }
   }
 
   return (
@@ -337,3 +473,16 @@ export default function CheckoutTabEditable(props: CheckoutTabEditableDetails) {
     </View>
   );
 }
+
+//RESET RECEIPT DBs
+// async () => {
+//   await db
+//     .execAsync(
+//       `
+//     DELETE FROM order_summary;
+//     DELETE FROM receipts;
+//     DELETE FROM add_on_receipts;
+//     `
+//     )
+//     .then(() => console.log("db deleted"));
+// }

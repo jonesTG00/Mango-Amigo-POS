@@ -4,6 +4,7 @@ import {
   StyleSheet,
   ImageBackground,
   SafeAreaView,
+  Image,
 } from "react-native";
 
 import * as React from "react";
@@ -14,9 +15,12 @@ import {
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
 
-import { AddOnReceipt, Receipt } from "../assets/db/types";
+import { AddOnReceipt, OrderSummary, Receipt } from "../assets/db/types";
 import { useFonts } from "expo-font";
-import defaultStyles, { MENU_CATEGORY_NAME } from "../assets/defaults";
+import defaultStyles, {
+  MENU_CATEGORY_NAME,
+  ReceiptImagesURI,
+} from "../assets/defaults";
 import ReceiptTab from "../components/ReceiptTab";
 import { createContext, useEffect, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
@@ -284,6 +288,42 @@ export default function Landing() {
     console.log("ran");
   }
 
+  // function generateImages() {
+  //   const [data, setData] = useState<OrderSummary[]>([]);
+  //   async function getOrders() {
+  //     try {
+  //       const rows = await db.getAllAsync<OrderSummary>(
+  //         `
+  //         SELECT * FROM order_summary;
+  //         `
+  //       );
+  //       setData(rows);
+  //       console.log(rows.length);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+  //   getOrders();
+  //   if (data.length > 0) {
+  //     data.map((el, index) => {
+  //       return (
+  //         <Image
+  //           source={{ uri: ReceiptImagesURI(el.order_id) }}
+  //           width={100}
+  //           height={100}
+  //           key={index}
+  //         />
+  //       );
+  //     });
+  //   }
+
+  //   return (
+  //     <>
+  //       <Text>No image yet</Text>
+  //     </>
+  //   );
+  // }
+
   useEffect(() => {
     logData();
   }, []);
@@ -326,6 +366,7 @@ export default function Landing() {
                   );
                 })}
               </View>
+              {/* {generateImages()} */}
             </View>
           </View>
         </ImageBackground>

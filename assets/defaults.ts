@@ -4,6 +4,8 @@ import {
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
 
+import * as FileSystem from "expo-file-system";
+
 // export default StyleSheet.create({
 
 // })
@@ -55,4 +57,14 @@ export enum MENU_CATEGORY_NAME {
   FRIES_AND_CHEESESTICK = "Fries and Cheesestick",
   SIOMAI_AND_SUPERMEAL = "Siomai and Supermeal",
   OTHERS = "Others",
+}
+
+export function ReceiptImagesURI(image: string): string {
+  const newURI =
+    (FileSystem.documentDirectory ? FileSystem.documentDirectory : "") +
+    "assets/receipts/" +
+    image +
+    ".jpg";
+
+  return newURI;
 }
