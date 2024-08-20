@@ -1,3 +1,8 @@
+import * as Orientation from "expo-screen-orientation";
+
+import { Asset } from "expo-asset";
+import { SQLiteProvider, useSQLiteContext } from "expo-sqlite";
+import { Link } from "expo-router";
 import {
   Text,
   View,
@@ -5,16 +10,11 @@ import {
   ImageBackground,
   SafeAreaView,
   Image,
+  TouchableOpacity,
+  Pressable,
 } from "react-native";
-
 import * as React from "react";
 import MenuButton from "../components/MenuCategoryButton";
-
-import {
-  heightPercentageToDP as hp,
-  widthPercentageToDP as wp,
-} from "react-native-responsive-screen";
-
 import { AddOnReceipt, OrderSummary, Receipt } from "../assets/db/types";
 import { useFonts } from "expo-font";
 import defaultStyles, {
@@ -23,50 +23,21 @@ import defaultStyles, {
 } from "../assets/defaults";
 import ReceiptTab from "../components/ReceiptTab";
 import { createContext, useEffect, useState } from "react";
-import { useSQLiteContext } from "expo-sqlite";
+import * as SQLite from "expo-sqlite";
 import menuJson from "../assets/db/menuItems.json";
 
-export interface ReceiptContextDetails {
-  receipt: {
-    receipt: Receipt;
-    menu_name: string;
-    add_on: AddOnReceipt[];
-  }[];
-  add_receipt: (
-    item: { receipt: Receipt; menu_name: string; add_on: AddOnReceipt[] }[]
-  ) => void;
-  remove_receipt: (id: number) => void;
-  reset_receipt: () => void;
-}
-export const ReceiptContext = createContext<ReceiptContextDetails | null>(null);
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
 
-export default function Landing() {
+export default function App() {
   const [fonts] = useFonts({
     Monument: require("../assets/fonts/Monument Extended.otf"),
+    Poppins: require("../assets/fonts/Poppins.ttf"),
   });
 
-  const [receipt, setReceipt] = useState<
-    { receipt: Receipt; menu_name: string; add_on: AddOnReceipt[] }[]
-  >([]);
-
-  function add_receipt(
-    item: { receipt: Receipt; menu_name: string; add_on: AddOnReceipt[] }[]
-  ) {
-    setReceipt([...receipt, ...item]);
-  }
-
-  function remove_receipt(id: number) {
-    const newArray = [...receipt];
-    const index = newArray.findIndex((item) => item.receipt.receipt_id === id);
-    newArray.splice(index, 1);
-    setReceipt(newArray);
-  }
-
-  function reset_receipt() {
-    setReceipt([]);
-  }
-
-  const style = StyleSheet.create({
+  const styles = StyleSheet.create({
     container: {
       display: "flex",
       flexDirection: "row",
@@ -98,6 +69,11 @@ export default function Landing() {
       justifyContent: "center",
       alignItems: "center",
       alignContent: "center",
+    },
+    operationsButton: {
+      width: hp(5),
+      height: hp(5),
+      borderRadius: hp(2.5),
     },
   });
 
@@ -288,56 +264,11 @@ export default function Landing() {
     console.log("ran");
   }
 
-  // function generateImages() {
-  //   const [data, setData] = useState<OrderSummary[]>([]);
-  //   async function getOrders() {
-  //     try {
-  //       const rows = await db.getAllAsync<OrderSummary>(
-  //         `
-  //         SELECT * FROM order_summary;
-  //         `
-  //       );
-  //       setData(rows);
-  //       console.log(rows.length);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-  //   getOrders();
-  //   if (data.length > 0) {
-  //     data.map((el, index) => {
-  //       return (
-  //         <Image
-  //           source={{ uri: ReceiptImagesURI(el.order_id) }}
-  //           width={100}
-  //           height={100}
-  //           key={index}
-  //         />
-  //       );
-  //     });
-  //   }
-
-  //   return (
-  //     <>
-  //       <Text>No image yet</Text>
-  //     </>
-  //   );
-  // }
-
   useEffect(() => {
     logData();
   }, []);
 
-  useEffect(() => {
-    if (receipt.length > 0) {
-      receipt.map((el) => {
-        console.log(
-          "add on for receipt number " + el.receipt.receipt_id + " : "
-        );
-        console.log(el.add_on);
-      });
-    }
-  }, [receipt]);
+  Orientation.lockAsync(Orientation.OrientationLock.LANDSCAPE);
 
   if (!fonts) {
     return <Text>Wait</Text>;
@@ -345,32 +276,37 @@ export default function Landing() {
 
   return (
     <SafeAreaView>
-      <ReceiptContext.Provider
-        value={{ receipt, add_receipt, remove_receipt, reset_receipt }}
-      >
-        <ImageBackground source={require("../assets/img/mango-pattern.jpg")}>
-          <View style={style.container}>
-            <ReceiptTab width={"40%"} checkout={true} editable={true} />
-            <View style={[style.menuDiv, defaultStyles.big_shadow]}>
-              <View style={style.menuButtonContainer}>
-                <Text style={{ fontFamily: "Monument", fontSize: hp(4) }}>
-                  Menu
-                </Text>
-                {default_menu.map((el, index) => {
-                  return (
-                    <MenuButton
-                      menu_category_name={el.category}
-                      bg_color={el.bg_color}
-                      key={index}
-                    />
-                  );
-                })}
-              </View>
-              {/* {generateImages()} */}
+      <ImageBackground source={require("../assets/img/mango-pattern.jpg")}>
+        <View style={styles.container}>
+          <ReceiptTab width={"40%"} checkout={true} editable={true} />
+          <View style={[styles.menuDiv, defaultStyles.big_shadow]}>
+            <View style={styles.menuButtonContainer}>
+              <Text style={{ fontFamily: "Monument", fontSize: hp(4) }}>
+                Menu
+              </Text>
+              {default_menu.map((el, index) => {
+                return (
+                  <MenuButton
+                    menu_category_name={el.category}
+                    bg_color={el.bg_color}
+                    key={index}
+                  />
+                );
+              })}
             </View>
+            <Link href="/receipts" asChild>
+              <Pressable
+                style={[
+                  styles.operationsButton,
+                  { backgroundColor: "#FFC1CC" },
+                ]}
+              >
+                <Text>View Orders</Text>
+              </Pressable>
+            </Link>
           </View>
-        </ImageBackground>
-      </ReceiptContext.Provider>
+        </View>
+      </ImageBackground>
     </SafeAreaView>
   );
 }

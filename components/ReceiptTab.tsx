@@ -23,7 +23,7 @@ import { useContext, useEffect, useState } from "react";
 import menuJson from "../assets/db/menuItems.json";
 import { useSQLiteContext } from "expo-sqlite";
 import CheckoutModal from "./CheckoutModal";
-import { ReceiptContext, ReceiptContextDetails } from "./Landing";
+import { ReceiptContext, ReceiptContextDetails } from "../app/index";
 
 interface ReceiptTabDetails {
   width: `${number}%`;
@@ -160,14 +160,9 @@ export default function ReceiptTab(props: ReceiptTabDetails) {
     }
 
     return (
-      <View
-        style={[
-          styles.menu_item_button,
-        ]}
-        key={index}
-      >
+      <View style={[styles.menu_item_button]} key={index}>
         <View style={{ width: "20%" }}>
-          <Text style={[styles.receipt_text ]}>{item.receipt.quantity}</Text>
+          <Text style={[styles.receipt_text]}>{item.receipt.quantity}</Text>
         </View>
         <View style={{ width: "60%" }}>
           <Text style={[styles.receipt_text]}>{item.menu_name}</Text>
@@ -196,13 +191,17 @@ export default function ReceiptTab(props: ReceiptTabDetails) {
 
       <View style={{ display: "flex", flexDirection: "row" }}>
         <View style={{ width: "20%" }}>
-          <Text style={[styles.receipt_text, {fontSize: hp(.75)}]}>Qty</Text>
+          <Text style={[styles.receipt_text, { fontSize: hp(0.75) }]}>Qty</Text>
         </View>
         <View style={{ width: "60%" }}>
-          <Text style={[styles.receipt_text, {fontSize: hp(.75)}]}>Menu Name</Text>
+          <Text style={[styles.receipt_text, { fontSize: hp(0.75) }]}>
+            Menu Name
+          </Text>
         </View>
         <View style={{ width: "20%" }}>
-          <Text style={[styles.receipt_text, {fontSize: hp(.75)}]}>Price</Text>
+          <Text style={[styles.receipt_text, { fontSize: hp(0.75) }]}>
+            Price
+          </Text>
         </View>
       </View>
 

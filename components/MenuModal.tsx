@@ -36,7 +36,7 @@ import menuJson from "../assets/db/menuItems.json";
 import AddOnTab from "./AddOnTab";
 import ReceiptTab from "./ReceiptTab";
 import { useSQLiteContext } from "expo-sqlite";
-import { ReceiptContext, ReceiptContextDetails } from "./Landing";
+import { ReceiptContext, ReceiptContextDetails } from "../app/index";
 import MenuModalReceipt from "./MenuModalReceipt";
 
 interface ModalMenuDetails {
