@@ -13,12 +13,13 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AddOnReceipt, Receipt } from "../assets/db/types";
 import FileUpload from "./FileUpload";
 import { useSQLiteContext } from "expo-sqlite";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
+import { ReceiptContext, ReceiptContextDetails } from "../app/index";
 
 interface CheckoutTabEditableDetails {
   receipt_list: {
@@ -45,6 +46,8 @@ export default function CheckoutTabEditable(props: CheckoutTabEditableDetails) {
   const dt = ["Dine-in", "Take-out"];
 
   const db = useSQLiteContext();
+
+  const receiptContext = useContext(ReceiptContext) as ReceiptContextDetails;
 
   const styles = StyleSheet.create({
     checkout_title_text: {
@@ -258,10 +261,12 @@ export default function CheckoutTabEditable(props: CheckoutTabEditableDetails) {
       );
       `
         )
-        .then(() => console.log("order summary added"))
+        .then(() => {
+          console.log("order summary added");
+          receiptContext.reset_receipt();
+        })
         .catch((e) => {
           console.log("error in order summary");
-
           console.log(e);
         })
         .finally(() => console.log("inserting to order_summary done"));
@@ -270,7 +275,7 @@ export default function CheckoutTabEditable(props: CheckoutTabEditableDetails) {
         await db
           .execAsync(
             `
-        INSERT INTO receipts(receipt_id, order_id, type, item_id, specifications, quantity, add_on_price, item_price, total_price) VALUES (
+        INSERT INTO receipts(receipt_id, order_id, type, item_id, specifications, quantity, add_on_price, item_price, total_price, receipt_description) VALUES (
         ${el.receipt.receipt_id},
         "${orderId}",
         "${el.receipt.type}",
@@ -279,7 +284,8 @@ export default function CheckoutTabEditable(props: CheckoutTabEditableDetails) {
         ${el.receipt.quantity},
         ${el.receipt.add_on_price},
         ${el.receipt.item_price},
-        ${el.receipt.total_price}
+        ${el.receipt.total_price},
+        "${el.receipt.receipt_description}"
         );
         `
           )

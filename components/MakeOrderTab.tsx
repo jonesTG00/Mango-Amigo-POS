@@ -135,33 +135,6 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
       }
     }
 
-    const receipt_id = Date.now();
-    const receipt: Receipt = {
-      receipt_id: receipt_id,
-      order_id: "",
-      type: receiptType,
-      item_id: menu_item?.id || "",
-      specifications:
-        size === null || receiptType === MENU_CATEGORY_NAME.OTHERS.toUpperCase()
-          ? ""
-          : Object.keys(size)[0],
-      quantity: quantity,
-      add_on_price: add_on_price,
-      item_price:
-        menu_item === null
-          ? 0
-          : size !== null
-          ? typeof menu_item?.price === "number"
-            ? menu_item?.price
-            : menu_item?.price[
-                Object.keys(size)[0] as keyof typeof menu_item.price
-              ]
-          : 0,
-      total_price: totalPrice,
-    };
-
-    console.log(receipt);
-
     const menu_name = `${
       size
         ? receiptType !== MENU_CATEGORY_NAME.OTHERS.toUpperCase()
@@ -187,6 +160,34 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
         });
       });
     }
+
+    const receipt_id = Date.now();
+    const receipt: Receipt = {
+      receipt_id: receipt_id,
+      order_id: "",
+      type: receiptType,
+      item_id: menu_item?.id || "",
+      specifications:
+        size === null || receiptType === MENU_CATEGORY_NAME.OTHERS.toUpperCase()
+          ? ""
+          : Object.keys(size)[0],
+      quantity: quantity,
+      add_on_price: add_on_price,
+      item_price:
+        menu_item === null
+          ? 0
+          : size !== null
+          ? typeof menu_item?.price === "number"
+            ? menu_item?.price
+            : menu_item?.price[
+                Object.keys(size)[0] as keyof typeof menu_item.price
+              ]
+          : 0,
+      total_price: totalPrice,
+      receipt_description: menu_name,
+    };
+
+    console.log(receipt);
 
     return { receipt, menu_name, add_on };
   }
@@ -547,8 +548,13 @@ export default function MakeOrderTab(props: MakeOrderTabDetails) {
       <View style={[styles.total_price_container]}>
         <Text style={[styles.total_price_text]}>PRICE: P{totalPrice}</Text>
         <TouchableOpacity
-          style={[styles.add_to_receipt_button, defaults.small_shadow, size === null ? { backgroundColor: "#ffffff" }
-            : { backgroundColor: "#03C04A" }]}
+          style={[
+            styles.add_to_receipt_button,
+            defaults.small_shadow,
+            size === null
+              ? { backgroundColor: "#ffffff" }
+              : { backgroundColor: "#03C04A" },
+          ]}
           onPress={() => {
             size === null
               ? Alert.alert(

@@ -176,7 +176,7 @@ export const images = {
 };
 
 export interface OrderSummary {
-  order_id: string;
+  order_id: number;
   mode_of_payment: "GCASH" | "MAYA" | "CASH";
   discount_percentage: number;
   discount_cash: number;
@@ -197,6 +197,7 @@ export interface Receipt {
   add_on_price: number;
   item_price: number;
   total_price: number;
+  receipt_description: string;
 }
 
 export interface AddOnReceipt {

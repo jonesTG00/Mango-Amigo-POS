@@ -34,7 +34,7 @@ export default function CheckoutModal(props: CheckoutModalDetails) {
   const { receipt_list, amount, isVisible, close } = props;
 
   const styles = StyleSheet.create({
-    modal_centered: { backgroundColor: "#8806ce", padding: wp(3) },
+    modal_centered: { backgroundColor: "#8806ce", padding: hp(3) },
     container: {
       backgroundColor: "white",
       padding: hp(1),

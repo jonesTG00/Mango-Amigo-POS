@@ -8,6 +8,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from "./Home";
 import Receipts from "./receipts";
+import { StackParamList } from "../assets/screentypes";
 
 export interface ReceiptContextDetails {
   receipt: {
@@ -21,6 +22,7 @@ export interface ReceiptContextDetails {
   remove_receipt: (id: number) => void;
   reset_receipt: () => void;
 }
+
 export const ReceiptContext = createContext<ReceiptContextDetails | null>(null);
 export default function index() {
   const [receipt, setReceipt] = useState<
@@ -63,16 +65,19 @@ export default function index() {
     loadDB();
   }, []);
 
-  const Stack = createNativeStackNavigator();
+  const Stack = createNativeStackNavigator<StackParamList>();
 
   return (
     <ReceiptContext.Provider
       value={{ receipt, add_receipt, remove_receipt, reset_receipt }}
     >
       <SQLiteProvider databaseName="MangoAmigoPOS">
-        <Stack.Navigator>
-          <Stack.Screen name="Receipts" component={Receipts} />
+        <Stack.Navigator
+          initialRouteName="Home"
+          screenOptions={{ headerShown: false }}
+        >
           <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen name="Receipts" component={Receipts} />
         </Stack.Navigator>
       </SQLiteProvider>
     </ReceiptContext.Provider>

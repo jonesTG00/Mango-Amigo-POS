@@ -23,15 +23,17 @@ import defaultStyles, {
 } from "../assets/defaults";
 import ReceiptTab from "../components/ReceiptTab";
 import { createContext, useEffect, useState } from "react";
-import * as SQLite from "expo-sqlite";
 import menuJson from "../assets/db/menuItems.json";
 
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { StackParamList } from "../assets/screentypes";
 
-export default function App() {
+type Props = NativeStackScreenProps<StackParamList, "Home">;
+export default function App({ route, navigation }: Props) {
   const [fonts] = useFonts({
     Monument: require("../assets/fonts/Monument Extended.otf"),
     Poppins: require("../assets/fonts/Poppins.ttf"),
@@ -98,16 +100,15 @@ export default function App() {
 
   const db = useSQLiteContext();
   async function logData() {
-    await db.getAllAsync(`SELECT * FROM categories;`).catch(async () => {
+    await db.getAllAsync(`SELECT * FROM drinks;`).catch(async () => {
       console.log("creating");
 
       await db
         .execAsync(
           `
-        CREATE TABLE IF NOT EXISTS categories(category_table_name TEXT PRIMARY KEY);
-        CREATE TABLE IF NOT EXISTS receipts(receipt_id INTEGER NOT NULL, order_id TEXT NOT NULL, type TEXT NOT NULL, item_id TEXT NOT NULL, specifications TEXT NOT NULL, quantity INTEGER DEFAULT 1, add_on_price INTEGER DEFAULT 0, item_price INTEGER NOT NULL, total_price INTEGER NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (receipt_id, order_id));
-        CREATE TABLE IF NOT EXISTS order_summary(order_id TEXT PRIMARY KEY NOT NULL, mode_of_payment TEXT CHECK (mode_of_payment IN ('GCASH', 'MAYA', "CASH")) NOT NULL, discount_percentage INTEGER DEFAULT 0, discount_cash INTEGER DEFAULT 0, d_t TEXT CHECK(d_t in ('D','T')) NOT NULL, raw_total NUMBER NOT NULL, total NUMBER NOT NULL, tendered_amount NUMBER NOT NULL, change NUMBER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
-        CREATE TABLE IF NOT EXISTS add_on_receipts(order_id TEXT NOT NULL, receipt_id INTEGER NOT NULL, for INTEGER NOT NULL, add_ons_id TEXT NOT NULL, PRIMARY KEY (order_id, receipt_id));
+        CREATE TABLE IF NOT EXISTS receipts(receipt_id NUMBER NOT NULL, order_id TEXT NOT NULL, type TEXT NOT NULL, item_id TEXT NOT NULL, specifications TEXT NOT NULL, quantity NUMBER DEFAULT 1, add_on_price NUMBER DEFAULT 0, item_price NUMBER NOT NULL, total_price NUMBER NOT NULL, receipt_description TEXT NOT NULL, PRIMARY KEY (receipt_id, order_id));
+        CREATE TABLE IF NOT EXISTS order_summary(order_id NUMBER PRIMARY KEY NOT NULL, mode_of_payment TEXT CHECK (mode_of_payment IN ('GCASH', 'MAYA', "CASH")) NOT NULL, discount_percentage NUMBER DEFAULT 0, discount_cash NUMBER DEFAULT 0, d_t TEXT CHECK(d_t in ('D','T')) NOT NULL, raw_total NUMBER NOT NULL, total NUMBER NOT NULL, tendered_amount NUMBER NOT NULL, change NUMBER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+        CREATE TABLE IF NOT EXISTS add_on_receipts(order_id TEXT NOT NULL, receipt_id NUMBER NOT NULL, for NUMBER NOT NULL, add_ons_id TEXT NOT NULL, PRIMARY KEY (order_id, receipt_id));
         CREATE TABLE IF NOT EXISTS drinks(drinks_id TEXT PRIMARY KEY NOT NULL, menu_name TEXT NOT NULL, "12oz" NUMBER DEFAULT 0, "16oz" NUMBER DEFAULT 0, "22oz" NUMBER DEFAULT 0);
         CREATE TABLE IF NOT EXISTS fries(fries_id TEXT PRIMARY KEY NOT NULL, menu_name TEXT NOT NULL, small NUMBER DEFAULT 0, medium NUMBER DEFAULT 0, large NUMBER DEFAULT 0, jumbo NUMBER DEFAULT 0, monster NUMBER DEFAULT 0);
         CREATE TABLE IF NOT EXISTS cheesesticks(cheesestick_id TEXT PRIMARY KEY NOT NULL, menu_name TEXT NOT NULL, "8pcs" NUMBER DEFAULT 0, "12pcs" NUMBER DEFAULT 0, "16pcs" NUMBER DEFAULT 0, "20pcs" NUMBER DEFAULT 0);
@@ -121,10 +122,6 @@ export default function App() {
         )
         .then(() => console.log("table creation ran"))
         .catch((e) => console.log(e));
-
-      db.runAsync(`
-      INSERT INTO TABLE categories VALUES ("drinks"), ("fries"), ("cheesesticks"), ("snack_with_drinks"), ("siomai"), ("super_meals"), ("others");
-      `);
 
       menuJson["Drinks"].map((el) => {
         db.runAsync(
@@ -150,7 +147,7 @@ export default function App() {
 
       menuJson["Cheesestick"].map((el) => {
         db.runAsync(
-          `INSERT INTO cheesesticks VALUES ("${el.id}", "${el.menu_name}", ${el.price["8pcs"]}, ${el.price["12pcs"]}, ${el.price["16pcs"]}, ${el.price["20pcs"]})';`
+          `INSERT INTO cheesesticks VALUES ("${el.id}", "${el.menu_name}", ${el.price["8pcs"]}, ${el.price["12pcs"]}, ${el.price["16pcs"]}, ${el.price["20pcs"]});`
         )
           .then(() => console.log(el.menu_name + " added"))
           .catch((e) => {
@@ -238,7 +235,6 @@ export default function App() {
     // await db
     //   .execAsync(
     //     `
-    //       DROP TABLE categories;
     //       DROP TABLE receipts;
     //       DROP TABLE order_summary;
     //       DROP TABLE add_on_receipts;
@@ -294,16 +290,14 @@ export default function App() {
                 );
               })}
             </View>
-            <Link href="/receipts" asChild>
-              <Pressable
-                style={[
-                  styles.operationsButton,
-                  { backgroundColor: "#FFC1CC" },
-                ]}
-              >
-                <Text>View Orders</Text>
-              </Pressable>
-            </Link>
+            <TouchableOpacity
+              style={[styles.operationsButton, { backgroundColor: "#FFC1CC" }]}
+              onPress={() => {
+                navigation.navigate("Receipts");
+              }}
+            >
+              <Text>View Orders</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ImageBackground>
