@@ -325,14 +325,6 @@ export default function CheckoutTabEditable(props: CheckoutTabEditableDetails) {
           });
         }
       });
-
-      await db
-        .getAllAsync(
-          `
-      SELECT * FROM order_summary
-      `
-        )
-        .then((e) => console.log(e));
       try {
         // const newURI = "../assets/receipts/" + orderId + ".jpg";
         const newURI = ReceiptImagesURI(orderId.toString());

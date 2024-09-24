@@ -31,6 +31,7 @@ import {
 } from "react-native-responsive-screen";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StackParamList } from "../assets/screentypes";
+import Operation from "../components/Operation";
 
 type Props = NativeStackScreenProps<StackParamList, "Home">;
 export default function App({ route, navigation }: Props) {
@@ -116,6 +117,7 @@ export default function App({ route, navigation }: Props) {
         CREATE TABLE IF NOT EXISTS siomai(siomai_id TEXT PRIMARY KEY NOT NULL, menu_name TEXT NOT NULL, "3pcs" NUMBER DEFAULT 0, "6pcs" NUMBER DEFAULT 0, "9pcs" NUMBER DEFAULT 0, "12pcs" NUMBER DEFAULT 0, "15pcs" NUMBER DEFAULT 0, "20pcs" NUMBER DEFAULT 0, "30pcs" NUMBER DEFAULT 0);
         CREATE TABLE IF NOT EXISTS super_meals(super_meals_id TEXT PRIMARY KEY NOT NULL, menu_name TEXT NOT NULL, "SM1 (3pcs siomai + 1 rice)" NUMBER NOT NULL, "SM2 (4pcs siomai + 1 rice)" NUMBER NOT NULL, "SM3 (6pcs siomai + 1 rice)" NUMBER NOT NULL );
         CREATE TABLE IF NOT EXISTS others(others_id TEXT PRIMARY KEY NOT NULL, menu_name TEXT NOT NULL, price NUMBER DEFAULT 0);
+        CREATE TABLE IF NOT EXISTS refunds(refund_id NUMBER PRIMARY KEY NOT NULL, order_id NUMBER NOT NULL, refunded_amount NUMBER DEFAULT 0);
         CREATE TABLE IF NOT EXISTS drink_add_ons(menu_name TEXT NOT NULL PRIMARY KEY, price NUMBER DEFAULT 0);
         CREATE TABLE IF NOT EXISTS snack_add_ons(menu_name TEXT NOT NULL PRIMARY KEY, price NUMBER DEFAULT 0);
         `
@@ -277,7 +279,7 @@ export default function App({ route, navigation }: Props) {
           <ReceiptTab width={"40%"} checkout={true} editable={true} />
           <View style={[styles.menuDiv, defaultStyles.big_shadow]}>
             <View style={styles.menuButtonContainer}>
-              <Text style={{ fontFamily: "Monument", fontSize: hp(4) }}>
+              <Text style={{ fontFamily: "Monument", fontSize: hp(2) }}>
                 Menu
               </Text>
               {default_menu.map((el, index) => {
@@ -290,14 +292,19 @@ export default function App({ route, navigation }: Props) {
                 );
               })}
             </View>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[styles.operationsButton, { backgroundColor: "#FFC1CC" }]}
               onPress={() => {
                 navigation.navigate("Receipts");
               }}
             >
               <Text>View Orders</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
+            <Operation
+              operation_name={"View Orders"}
+              icon_source={"Receipt"}
+              onPress={() => navigation.navigate("Receipts")}
+            />
           </View>
         </View>
       </ImageBackground>

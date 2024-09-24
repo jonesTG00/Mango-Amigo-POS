@@ -28,7 +28,7 @@ import {
   Receipt,
   AddOnReceipt,
 } from "../assets/db/types";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import MenuItemsButton from "./MenuItemsButton";
 import MakeOrderTab from "./MakeOrderTab";
 
@@ -89,7 +89,7 @@ export default function MenuModal(props: ModalMenuDetails) {
       backgroundColor: "white",
       padding: hp(3),
       display: "flex",
-      gap: hp(1),
+      gap: hp(0.5),
     },
     menu_title: {
       fontFamily: "Monument",
@@ -100,13 +100,13 @@ export default function MenuModal(props: ModalMenuDetails) {
     backButton: {
       padding: hp(1),
       width: "20%",
-      alignItems: "center",
       alignSelf: "flex-end",
     },
     backText: {
       color: "black",
       fontFamily: "Monument",
       fontSize: hp(1),
+      textAlign: "center",
     },
     scrollView: {
       width: "25%",
@@ -117,7 +117,7 @@ export default function MenuModal(props: ModalMenuDetails) {
       height: "80%",
       display: "flex",
       flexDirection: "row",
-      gap: wp(1),
+      gap: hp(1),
     },
   });
 

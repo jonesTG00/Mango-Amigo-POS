@@ -20,11 +20,12 @@ import DisplayOrderDetails from "../components/DisplayOrderDetails";
 
 type Props = NativeStackScreenProps<StackParamList, "Receipts">;
 export default function Receipts({ route, navigation }: Props) {
+  const [pagination, setPagination] = useState<number>(1);
   const [orders, setOrders] = useState<OrderSummary[]>([]);
   const [addOns, setAddOns] = useState<AddOnReceipt[]>([]);
   const [receipts, setReceipts] = useState<Receipt[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<number>(0);
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [selectedOrderID, setSelectedOrderID] = useState<number>(0);
+  const [orderData, setOrderData] = useState<OrderSummary>();
   const [loading, setLoading] = useState<boolean>(true);
   const styles = StyleSheet.create({
     container: {
@@ -53,15 +54,6 @@ export default function Receipts({ route, navigation }: Props) {
     },
   });
 
-  const [pagination, setPagination] = useState<number>(1);
-
-  function add_receipts(item: Receipt[]) {
-    setReceipts([...receipts, ...item]);
-  }
-  function add_add_ons(item: AddOnReceipt[]) {
-    setAddOns([...addOns, ...item]);
-  }
-
   const db = useSQLiteContext();
 
   async function manage_pagination() {
@@ -75,8 +67,33 @@ export default function Receipts({ route, navigation }: Props) {
       )
       .then((e) => {
         setOrders(e);
-        setSelectedOrder(e[0].order_id);
-        setSelectedIndex(0);
+        setSelectedOrderID(e[0].order_id);
+      })
+      .catch((e) => console.log(e));
+  }
+
+  async function manage_receipts() {
+    await db
+      .getAllAsync<Receipt>(
+        `
+          SELECT * FROM receipts WHERE order_id = ${selectedOrderID}
+          `
+      )
+      .then((e) => {
+        setReceipts(e);
+      })
+      .catch((e) => console.log(e));
+  }
+
+  async function manage_order() {
+    await db
+      .getAllAsync<OrderSummary>(
+        `
+          SELECT * FROM order_summary WHERE order_id = ${selectedOrderID}
+          `
+      )
+      .then((e) => {
+        setOrderData(e[0]);
       })
       .catch((e) => console.log(e));
   }
@@ -114,14 +131,12 @@ export default function Receipts({ route, navigation }: Props) {
         style={[
           styles.order_button,
           defaults.small_shadow,
-          selectedOrder === order.order_id
+          selectedOrderID === order.order_id
             ? { backgroundColor: "#FFB22C" }
             : { backgroundColor: "#F1F1F1" },
         ]}
         onPress={() => {
-          setSelectedOrder(order.order_id);
-          setSelectedIndex(index);
-          console.log(`Order ${order.order_id} is selected`);
+          setSelectedOrderID(order.order_id);
         }}
         key={order.order_id}
       >
@@ -129,7 +144,7 @@ export default function Receipts({ route, navigation }: Props) {
           <Text style={styles.order_button_small_text}>
             <Text
               style={
-                selectedOrder === order.order_id
+                selectedOrderID === order.order_id
                   ? { color: "black" }
                   : { color: "#FFB22C" }
               }
@@ -156,7 +171,9 @@ export default function Receipts({ route, navigation }: Props) {
   }
 
   function increasePageNumber() {
-    setPagination(pagination + 1);
+    if (orders.length !== 0) {
+      setPagination(pagination + 1);
+    }
   }
 
   function decreasePageNumber() {
@@ -178,22 +195,13 @@ export default function Receipts({ route, navigation }: Props) {
 
   useEffect(() => {
     setLoading(true);
-
-    async function manage_receipts() {
-      await db
-        .getAllAsync<Receipt>(
-          `
-            SELECT * FROM receipts WHERE order_id = ${selectedOrder}
-            `
-        )
-        .then((e) => {
-          setReceipts(e);
-        })
-        .catch((e) => console.log(e));
+    async function handleChange() {
+      await manage_receipts();
+      await manage_order();
     }
-    manage_receipts();
+    handleChange();
     setLoading(false);
-  }, [selectedOrder]);
+  }, [selectedOrderID]);
 
   useEffect(() => {}, [loading]);
 
@@ -225,7 +233,7 @@ export default function Receipts({ route, navigation }: Props) {
         </TouchableOpacity>
       </View>
 
-      <DisplayOrderDetails receipts={receipts} />
+      <DisplayOrderDetails receipts={receipts} order={orderData} />
 
       <View
         style={[

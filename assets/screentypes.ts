@@ -1,4 +1,5 @@
 export type StackParamList = {
-    Home: undefined;
-    Receipts: undefined;
-  };
+  Home: undefined;
+  Receipts: undefined;
+  Day: undefined;
+};

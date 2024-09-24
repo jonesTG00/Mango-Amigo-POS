@@ -1,4 +1,6 @@
+import React from "react";
 import menuJson from "./menuItems.json";
+import { View, Text } from "react-native";
 export interface MenuList {
   Drinks: DrinkData[];
   Fries: Fries[];
@@ -7,6 +9,20 @@ export interface MenuList {
   Frappe: Cheesestick[];
   Siomai: Siomai[];
   "Add On": AddOn[];
+}
+
+type PriceType = { [key: string]: number };
+
+export interface CategorizedMenu {
+  id: string;
+  menu_name: string;
+  price: PriceType[];
+}
+
+export interface NotCategorizedMenu {
+  id: string;
+  menu_name: string;
+  price: number;
 }
 
 export interface DrinkData {
@@ -173,6 +189,9 @@ export const images = {
   "SM1 (3pcs siomai + 1 rice)": require("../img/menu_images/SM1 (3pcs siomai + 1 rice).png"),
   "SM2 (4pcs siomai + 1 rice)": require("../img/menu_images/SM2 (4pcs siomai + 1 rice).png"),
   "SM3 (6pcs siomai + 1 rice)": require("../img/menu_images/SM3 (6pcs siomai + 1 rice).png"),
+  Receipt: require("../img/icons/Receipt.png"),
+  Add: require("../img/icons/Add.png"),
+  Day: require("../img/icons/Day.png"),
 };
 
 export interface OrderSummary {
@@ -180,7 +199,7 @@ export interface OrderSummary {
   mode_of_payment: "GCASH" | "MAYA" | "CASH";
   discount_percentage: number;
   discount_cash: number;
-  "d/t": "d" | "t";
+  d_t: "D" | "T";
   raw_total: number;
   total: number;
   tendered_amount: number;

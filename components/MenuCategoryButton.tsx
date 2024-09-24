@@ -47,7 +47,7 @@ export default function MenuButton(props: MenuDetails) {
     },
     menuName: {
       fontFamily: "Poppins",
-      fontSize: hp(2),
+      fontSize: hp(1.5),
       color: "#050301",
     },
   });

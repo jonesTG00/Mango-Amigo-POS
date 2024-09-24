@@ -32,7 +32,8 @@
     "expo-crypto": "~13.0.2",
     "expo-image-picker": "~15.0.7",
     "expo-linking": "~6.3.1",
-    "expo-constants": "~16.0.2"
+    "expo-constants": "~16.0.2",
+    "expo-image": "~1.12.15"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

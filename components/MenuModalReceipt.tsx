@@ -20,9 +20,6 @@ import { useFonts } from "expo-font";
 import defaultStyles from "../assets/defaults";
 import { AddOnReceipt, Receipt } from "../assets/db/types";
 import { useEffect, useState } from "react";
-import menuJson from "../assets/db/menuItems.json";
-import { useSQLiteContext } from "expo-sqlite";
-import CheckoutModal from "./CheckoutModal";
 
 interface ReceiptTabDetails {
   width: `${number}%`;
